@@ -5,52 +5,54 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.learningapp.BuildConfig
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechSynthesizer
+import com.microsoft.cognitiveservices.speech.SpeechSynthesisOutputFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.example.learningapp.BuildConfig
+import kotlinx.coroutines.withContext
 
 class LessonViewModel : ViewModel() {
 
     var currentVisemeId by mutableIntStateOf(0)
-
     private val speechKey = BuildConfig.AZURE_SPEECH_KEY
     private val serviceRegion = BuildConfig.AZURE_SPEECH_REGION
+    private val config: SpeechConfig by lazy {
+        SpeechConfig.fromSubscription(speechKey, serviceRegion).apply {
+            speechSynthesisVoiceName = "en-US-Andrew:DragonHDLatestNeural"
+            setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm)
+        }
+    }
 
-
-    fun speak(text: String) {
-        // Launch a coroutine on the IO dispatcher to handle network and background processing without freezing the UI.
-        viewModelScope.launch(Dispatchers.IO) {
-            // Initialize the Speech Configuration using your subscription key and service region
-            val config = SpeechConfig.fromSubscription(speechKey, serviceRegion)
-            // Specify the voice to be used
-            config.speechSynthesisVoiceName = "en-US-Andrew:DragonHDLatestNeural"
-
-            // Create the SpeechSynthesizer object with the specified configuration.
-            val synthesizer = SpeechSynthesizer(config)
-
-            // Add a listener for Viseme events.
-            // This is triggered every time a new mouth shape is calculated for the current phoneme.
-            synthesizer.VisemeReceived.addEventListener { _, e ->
-                // Update the currentVisemeId state. This change will be observed by the Compose UI to update the mouth image.
+    private val synthesizer: SpeechSynthesizer by lazy {
+        SpeechSynthesizer(config).also { syn ->
+            syn.VisemeReceived.addEventListener { _, e ->
                 currentVisemeId = e.visemeId.toInt()
-            }
-
-            try {
-                // Start the speech synthesis process. The audio plays through the default speaker while visemes are sent simultaneously.
-                synthesizer.SpeakText(text)
-            } catch (e: Exception) {
-                // Handle any potential errors such as network issues or invalid keys.
-                e.printStackTrace()
-            } finally {
-                // Reset the avatar's mouth to a closed position (ID 0) once the speaking is finished.
-                currentVisemeId = 0
-
-                // Dispose of the synthesizer to free up system resources and prevent memory leaks.
-                synthesizer.close()
             }
         }
     }
 
+    fun speak(text: String) = speak(text, onDone = null)
+
+    fun speak(text: String, onDone: (() -> Unit)?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Stop any previous speech to avoid overlap/glitches
+                synthesizer.SpeakText(text) // blocks until playback finished
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                currentVisemeId = 0
+                if (onDone != null) {
+                    withContext(Dispatchers.Main) { onDone() }
+                }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        try { synthesizer.close() } catch (_: Exception) {}
+        super.onCleared()
+    }
 }
