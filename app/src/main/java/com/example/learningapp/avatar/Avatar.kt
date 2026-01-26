@@ -2,6 +2,7 @@ package com.example.learningapp.avatar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -20,7 +21,7 @@ fun Avatar(visemeId: Int, modifier: Modifier = Modifier) {
 
         // Base Avatar
         Image(
-            painter = painterResource(id = R.drawable.avatar_base),
+            painter = painterResource(id = R.drawable.avatar_base_male),
             contentDescription = null,
             modifier = Modifier.fillMaxSize()
         )
@@ -31,8 +32,8 @@ fun Avatar(visemeId: Int, modifier: Modifier = Modifier) {
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.Center)
-                .offset(y = 50.dp)
-                .size(70.dp)
+                .absoluteOffset(x = (-3).dp, y = 65.dp)
+                .size(60.dp)
         )
     }
 }
