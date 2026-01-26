@@ -65,7 +65,7 @@ dependencies {
 
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.43.0")
+    implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.47.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.navigation:navigation-compose:2.7.7")
 }
