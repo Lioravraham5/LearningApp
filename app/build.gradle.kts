@@ -2,7 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("kotlin-kapt") // Required for Hilt
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -63,6 +66,16 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    // Firebase:
+    // Import the Firebase BoM to manage library versions automatically.
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+    implementation("com.google.firebase:firebase-auth")
+
+    // Hilt:
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    // For Hilt with Jetpack Compose Navigation
+    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.47.0")
