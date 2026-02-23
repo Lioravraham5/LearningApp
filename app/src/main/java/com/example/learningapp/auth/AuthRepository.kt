@@ -1,7 +1,7 @@
 package com.example.learningapp.auth
 
 import com.google.firebase.auth.FirebaseUser
-import kotlinx.coroutines.flow.Flow
+
 
 interface AuthRepository {
     // Executes login and suspends until the result is available from Firebase

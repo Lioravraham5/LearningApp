@@ -66,19 +66,27 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Firebase:
+    // --- Firebase ---
     // Import the Firebase BoM to manage library versions automatically.
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-auth")
 
-    // Hilt:
+    // --- Hilt ---
+    // Hilt Android: Core library for Dependency Injection in Android
     implementation("com.google.dagger:hilt-android:2.51.1")
+    // Hilt Compiler: Annotation processor for generating DI code
     kapt("com.google.dagger:hilt-compiler:2.51.1")
-    // For Hilt with Jetpack Compose Navigation
+    // Hilt Navigation Compose: Integration between Hilt and Compose Navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
+    // Lifecycle ViewModel Compose: Integration of ViewModel with Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    // Navigation Compose: Essential for building navigation graphs in Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // --- Networking & External Services ---
+    // Azure Cognitive Services Speech: SDK for speech-to-text and text-to-speech
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.47.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+
 }
