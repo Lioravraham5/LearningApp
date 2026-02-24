@@ -82,7 +82,7 @@ dependencies {
     // Lifecycle ViewModel Compose: Integration of ViewModel with Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     // Navigation Compose: Essential for building navigation graphs in Compose
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.9.7")
 
     // --- Networking & External Services ---
     // Azure Cognitive Services Speech: SDK for speech-to-text and text-to-speech
