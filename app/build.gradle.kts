@@ -89,4 +89,7 @@ dependencies {
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.47.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // Material Icons (The extended set)
+    implementation("androidx.compose.material:material-icons-extended")
+
 }

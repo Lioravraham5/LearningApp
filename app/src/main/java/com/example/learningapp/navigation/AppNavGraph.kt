@@ -5,15 +5,16 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.learningapp.HomeScreen
+import com.example.learningapp.home.HomeScreen
 import com.example.learningapp.auth.login.LoginScreen
 import com.example.learningapp.auth.register.RegisterScreen
+import com.example.learningapp.main.MainContainerScreen
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: String = Screen.Login.route
+    startDestination: String = RootScreen.Login.route
 ) {
     NavHost(
         navController = navController,
@@ -22,22 +23,22 @@ fun AppNavGraph(
     ) {
 
         // --- Login Destination ---
-        composable(route = Screen.Login.route) {
+        composable(route = RootScreen.Login.route) {
             LoginScreen(
                 onNavigateToRegister = {
-                    navController.navigate(Screen.Register.route)
+                    navController.navigate(RootScreen.Register.route)
                 },
                 onLoginSuccess = {
                     // Navigate to home screen and remove login screen from the back stack
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                    navController.navigate(RootScreen.MainContainer.route) {
+                        popUpTo(RootScreen.Login.route) { inclusive = true }
                     }
                 }
             )
         }
 
         // --- Register Destination ---
-        composable(route = Screen.Register.route) {
+        composable(route = RootScreen.Register.route) {
             RegisterScreen(
                 onNavigateToLogin = {
                     // Go back to the login screen
@@ -45,16 +46,16 @@ fun AppNavGraph(
                 },
                 onRegisterSuccess = {
                     // Navigate to home screen and remove register screen from the back stack
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                    navController.navigate(RootScreen.MainContainer.route) {
+                        popUpTo(RootScreen.Login.route) { inclusive = true }
                     }
                 }
             )
         }
 
         // --- Home Destination ---
-        composable(route = Screen.Home.route) {
-            HomeScreen()
+        composable(route = RootScreen.MainContainer.route) {
+            MainContainerScreen()
         }
     }
 }

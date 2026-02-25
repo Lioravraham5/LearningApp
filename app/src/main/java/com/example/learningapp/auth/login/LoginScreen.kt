@@ -59,8 +59,8 @@ fun LoginContent(
     onLoginSuccess: () -> Unit
 ) { 
     // Local state for the input fields
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("Lior@gmail.com") }
+    var password by remember { mutableStateOf("123456") }
 
     // React to success state
     LaunchedEffect(state.isSuccess) {
