@@ -92,4 +92,8 @@ dependencies {
     // Material Icons (The extended set)
     implementation("androidx.compose.material:material-icons-extended")
 
+    // For the Credential Manager libraries
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.2.0")
 }

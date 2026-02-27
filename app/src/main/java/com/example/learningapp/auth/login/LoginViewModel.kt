@@ -69,6 +69,26 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun loginWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginState(isLoading = true)
+
+            // Call the suspended login method from the repository
+            val result = repository.loginWithGoogle(idToken)
+
+            when (result) {
+                is AuthResult.Success -> {
+                    Log.d(TAG, "Google Login successful")
+                    _loginState.value = LoginState(isSuccess = true)
+                }
+                is AuthResult.Error -> {
+                    Log.d(TAG, "Google Login failed: ${result.message}")
+                    _loginState.value = LoginState(error = result.message)
+                }
+            }
+        }
+    }
+
     /**
      * Resets the error message so it doesn't reappear after being dismissed.
      */

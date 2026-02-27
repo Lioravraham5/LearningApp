@@ -2,6 +2,7 @@ package com.example.learningapp.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 
 class FirebaseAuthRepositoryImpl(
@@ -24,6 +25,25 @@ class FirebaseAuthRepositoryImpl(
         } catch (e: Exception) {
             // Maps Firebase exceptions to our AuthResult.Error
             AuthResult.Error(e.localizedMessage ?: "An unexpected error occurred during login")
+        }
+    }
+
+    override suspend fun loginWithGoogle(idToken: String): AuthResult<FirebaseUser> {
+        return try {
+            // Create a Firebase credential using the Google ID token we received
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+            // Authenticate with Firebase using this credential
+            val result = firebaseAuth.signInWithCredential(credential).await()
+
+            val user = result.user
+            if (user != null) {
+                AuthResult.Success(user)
+            } else {
+                AuthResult.Error("Google sign-in succeeded, but user data is null")
+            }
+        } catch (e: Exception) {
+            AuthResult.Error(e.localizedMessage ?: "Google sign-in failed")
         }
     }
 

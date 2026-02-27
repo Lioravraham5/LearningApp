@@ -6,6 +6,5 @@
 /captures
 .externalNativeBuild
 .cxx
-local.properties
-/.kotlin/errors/errors-1771778746723.log
 .idea/
+.kotlin/
