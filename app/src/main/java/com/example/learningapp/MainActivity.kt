@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.example.learningapp.lesson.CategoryScreen
 import com.example.learningapp.ui.theme.LearningAppTheme
 import androidx.compose.foundation.layout.padding
 import com.example.learningapp.navigation.AppNavGraph
@@ -44,10 +43,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainActivityPreview() {
     LearningAppTheme {
-        CategoryScreen(
-            onPickTravel = {},
-            onPickJobInterview = {},
-            onPickEverydayConversation = {}
-        )
+
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.learningapp.home.HomeScreen
 import com.example.learningapp.auth.login.LoginScreen
 import com.example.learningapp.auth.register.RegisterScreen
 import com.example.learningapp.main.MainContainerScreen
