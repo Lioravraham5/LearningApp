@@ -3,6 +3,8 @@ package com.example.learningapp.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.learningapp.auth.AuthRepository
+import com.example.learningapp.auth.generateDisplayName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +25,8 @@ data class HomeState(
 // Hilt injects the dependencies into this ViewModel.
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: HomeRepository
+    private val repository: HomeRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     val TAG = "HomeViewModel"
@@ -49,12 +52,16 @@ class HomeViewModel @Inject constructor(
                 val categories = repository.getCategories()
                 Log.d(TAG, "Successfully fetched categories: $categories")
 
-                // Update state on success.
-                // TODO: "Student Name" is hardcoded; replace with AuthRepository data later.
+                // Fetch the current logged-in user
+                val currentUser = authRepository.getCurrentUser()
+
+                // Determine the name to display using a smart fallback mechanism
+                val displayName = currentUser.generateDisplayName()
+
                 _homeState.update {
                     it.copy(
                         isLoading = false,
-                        userName = "Student Name",
+                        userName = displayName,
                         categories = categories
                     )
                 }
