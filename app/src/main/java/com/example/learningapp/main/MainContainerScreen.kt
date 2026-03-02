@@ -29,7 +29,9 @@ import com.example.learningapp.navigation.BottomNavGraph
  *
  */
 @Composable
-fun MainContainerScreen() {
+fun MainContainerScreen(
+    onLogoutSuccess: () -> Unit
+) {
 
     // Internal NavController dedicated to bottom navigation.
     // This is separate from the root NavController used in MainActivity.
@@ -96,6 +98,7 @@ fun MainContainerScreen() {
         // Attach the bottom navigation graph to this container using the bottomNavController.
         BottomNavGraph(
             navController = bottomNavController,
+            onLogoutSuccess = onLogoutSuccess,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -105,6 +108,8 @@ fun MainContainerScreen() {
 @Composable
 fun MainContainerScreenPreview() {
     MaterialTheme {
-        MainContainerScreen()
+        MainContainerScreen(
+            onLogoutSuccess = {}
+        )
     }
 }

@@ -54,7 +54,14 @@ fun AppNavGraph(
 
         // --- Home Destination ---
         composable(route = RootScreen.MainContainer.route) {
-            MainContainerScreen()
+            MainContainerScreen(
+                onLogoutSuccess = {
+                    // Navigate to Login and completely clear the backstack!
+                    navController.navigate(RootScreen.Login.route) {
+                        popUpTo(0) { inclusive = true } // 0 means the absolute root of the nav graph
+                    }
+                }
+            )
         }
     }
 }

@@ -12,6 +12,7 @@ import com.example.learningapp.progress.ProgressScreen
 @Composable
 fun BottomNavGraph(
     navController: NavHostController,
+    onLogoutSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -32,7 +33,9 @@ fun BottomNavGraph(
 
         // --- Profile Tab ---
         composable(BottomNavItem.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(
+                onNavigateToLogin = onLogoutSuccess
+            )
         }
     }
 }
