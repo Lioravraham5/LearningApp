@@ -18,4 +18,10 @@ interface AuthRepository {
 
     // Sign out the current user
     fun logout()
+
+    // Updates the user's display name in Firebase
+    suspend fun updateDisplayName(newName: String): AuthResult<Unit>
+
+    // Permanently deletes the user's account and data from Firebase
+    suspend fun deleteAccount(): AuthResult<Unit>
 }

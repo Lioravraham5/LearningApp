@@ -3,6 +3,7 @@ package com.example.learningapp.auth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.tasks.await
 
 class FirebaseAuthRepositoryImpl(
@@ -74,5 +75,33 @@ class FirebaseAuthRepositoryImpl(
 
     override fun logout() {
         firebaseAuth.signOut()
+    }
+
+    override suspend fun updateDisplayName(newName: String): AuthResult<Unit> {
+        val user = firebaseAuth.currentUser ?: return AuthResult.Error("No user logged in")
+
+        return try {
+            val profileUpdates = userProfileChangeRequest {
+                displayName = newName
+            }
+            // Suspends until the update finishes
+            user.updateProfile(profileUpdates).await()
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            AuthResult.Error(e.localizedMessage ?: "Failed to update name")
+        }
+    }
+
+    override suspend fun deleteAccount(): AuthResult<Unit> {
+        val user = firebaseAuth.currentUser ?: return AuthResult.Error("No user logged in")
+
+        return try {
+            // Suspends until the deletion finishes
+            user.delete().await()
+            AuthResult.Success(Unit)
+        } catch (e: Exception) {
+            // Note: Firebase sometimes requires recent re-authentication before deleting an account.
+            AuthResult.Error(e.localizedMessage ?: "Failed to delete account. Please log in again.")
+        }
     }
 }

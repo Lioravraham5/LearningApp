@@ -93,6 +93,9 @@ dependencies {
     // Material Icons (The extended set)
     implementation("androidx.compose.material:material-icons-extended")
 
+    // Preferences DataStore (SharedPreferences like APIs)
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
+
     // For the Credential Manager libraries
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
