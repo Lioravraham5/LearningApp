@@ -78,4 +78,22 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Refreshes lightweight user data.
+     * Called every time the Home screen becomes active to ensure data is synced.
+     */
+    fun refreshUser() {
+        try {
+            val currentUser = authRepository.getCurrentUser()
+            val displayName = currentUser.generateDisplayName()
+
+            // Update only the user name in the state, keep everything else as is
+            _homeState.update {
+                it.copy(userName = displayName)
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "Failed to refresh user data: ${e.message}")
+        }
+    }
 }

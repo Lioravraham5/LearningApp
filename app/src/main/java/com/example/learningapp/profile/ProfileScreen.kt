@@ -42,6 +42,7 @@ import com.example.learningapp.profile.components.DeleteAccountDialog
 import com.example.learningapp.profile.components.EditNameDialog
 import com.example.learningapp.profile.components.ProfileSettingItem
 import com.example.learningapp.profile.components.UserIdentitySection
+import androidx.compose.foundation.layout.WindowInsets
 
 /**
  * Stateful entry point for the Profile Screen.
@@ -108,7 +109,8 @@ fun ProfileScreenContent(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0.dp)
     ) { paddingValues ->
 
         // Main Scrollable Column

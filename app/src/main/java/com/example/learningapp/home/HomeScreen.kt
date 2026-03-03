@@ -1,12 +1,11 @@
 package com.example.learningapp.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +34,11 @@ fun HomeScreen(
 ) {
     // Collects the state in a lifecycle-aware manner.
     val state by viewModel.homeState.collectAsStateWithLifecycle()
+
+    // This triggers every time the user navigates back to the Home tab.
+    LaunchedEffect(Unit) {
+        viewModel.refreshUser()
+    }
 
     // Pass the collected state to the stateless UI component
     HomeScreenContent(state = state)
@@ -75,10 +80,14 @@ fun HomeScreenContent(
             ) {
                 // --- FIXED HEADER SECTION ---
                 HomeHeader(userName = state.userName)
-                Spacer(modifier = Modifier.height(16.dp))
 
+                // --- CATEGORIES LIST ---
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        top = 16.dp,
+                        bottom = 16.dp
+                    ),
                     verticalArrangement = Arrangement.spacedBy(16.dp) // Spacing between each item
                 ) {
 

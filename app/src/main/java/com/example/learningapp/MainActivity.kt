@@ -30,6 +30,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainActivityPreview() {
     LearningAppTheme {
-
+        MainActivity()
     }
 }
