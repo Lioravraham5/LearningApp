@@ -7,61 +7,87 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.learningapp.auth.login.LoginScreen
 import com.example.learningapp.auth.register.RegisterScreen
-import com.example.learningapp.main.MainContainerScreen
+import androidx.navigation.navigation
+import com.example.learningapp.home.HomeScreen
+import com.example.learningapp.profile.ProfileScreen
+import com.example.learningapp.progress.ProgressScreen
 
+/**
+ * The single, unified Navigation Graph for the entire application.
+ * Uses nested graphs to separate the Authentication flow from the Main app flow.
+ */
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    modifier: Modifier = Modifier,
-    startDestination: String = RootScreen.Login.route
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = Graph.AUTH, // The app always starts by checking the Auth area
+        route = Graph.ROOT, // Optional: Gives a name to the entire tree
         modifier = modifier
     ) {
 
-        // --- Login Destination ---
-        composable(route = RootScreen.Login.route) {
-            LoginScreen(
-                onNavigateToRegister = {
-                    navController.navigate(RootScreen.Register.route)
-                },
-                onLoginSuccess = {
-                    // Navigate to home screen and remove login screen from the back stack
-                    navController.navigate(RootScreen.MainContainer.route) {
-                        popUpTo(RootScreen.Login.route) { inclusive = true }
+        // ==========================================
+        // REGION 1: Authentication Graph
+        // ==========================================
+        navigation(
+            route = Graph.AUTH,
+            startDestination = AuthScreen.Login.route
+        ) {
+            composable(route = AuthScreen.Login.route) {
+                LoginScreen(
+                    onNavigateToRegister = {
+                        navController.navigate(AuthScreen.Register.route)
+                    },
+                    onLoginSuccess = {
+                        // Success! Navigate to the MAIN graph and destroy the AUTH history
+                        navController.navigate(Graph.MAIN) {
+                            popUpTo(Graph.AUTH) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            }
+
+            composable(route = AuthScreen.Register.route) {
+                RegisterScreen(
+                    onNavigateToLogin = {
+                        navController.popBackStack()
+                    },
+                    onRegisterSuccess = {
+                        // Success! Navigate to the MAIN graph and destroy the AUTH history
+                        navController.navigate(Graph.MAIN) {
+                            popUpTo(Graph.AUTH) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
 
-        // --- Register Destination ---
-        composable(route = RootScreen.Register.route) {
-            RegisterScreen(
-                onNavigateToLogin = {
-                    // Go back to the login screen
-                    navController.popBackStack()
-                },
-                onRegisterSuccess = {
-                    // Navigate to home screen and remove register screen from the back stack
-                    navController.navigate(RootScreen.MainContainer.route) {
-                        popUpTo(RootScreen.Login.route) { inclusive = true }
-                    }
-                }
-            )
-        }
+        // ==========================================
+        // REGION 2: Main Application Graph
+        // ==========================================
+        navigation(
+            route = Graph.MAIN,
+            startDestination = BottomNavItem.Home.route
+        ) {
+            composable(route = BottomNavItem.Home.route) {
+                HomeScreen()
+            }
 
-        // --- Home Destination ---
-        composable(route = RootScreen.MainContainer.route) {
-            MainContainerScreen(
-                onLogoutSuccess = {
-                    // Navigate to Login and completely clear the backstack!
-                    navController.navigate(RootScreen.Login.route) {
-                        popUpTo(0) { inclusive = true } // 0 means the absolute root of the nav graph
+            composable(route = BottomNavItem.Progress.route) {
+                ProgressScreen()
+            }
+
+            composable(route = BottomNavItem.Profile.route) {
+                ProfileScreen(
+                    onNavigateToLogin = {
+                        navController.navigate(Graph.AUTH) {
+                            popUpTo(Graph.MAIN) { inclusive = true }
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

@@ -6,13 +6,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
 import com.example.learningapp.ui.theme.LearningAppTheme
-import androidx.compose.foundation.layout.padding
-import com.example.learningapp.navigation.AppNavGraph
+import com.example.learningapp.main.MainAppScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -23,17 +18,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             LearningAppTheme {
-
-                // Create a NavController
-                val navController = rememberNavController()
-
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding  ->
-                    // Create a NavHost to navigate between screens
-                    AppNavGraph(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                // The entire app's UI, Navigation, and Scaffold are now
+                // perfectly encapsulated and managed inside MainAppScreen!
+                MainAppScreen()
             }
         }
     }
