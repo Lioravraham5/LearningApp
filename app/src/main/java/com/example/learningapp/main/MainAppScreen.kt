@@ -62,9 +62,12 @@ fun MainAppScreen() {
                                 if (currentRoute != screen.route) {
                                     // Standard M3 Bottom Navigation behavior
                                     navController.navigate(screen.route) {
-                                        // Pop up to the start destination of the graph to
-                                        // avoid building up a large stack of destinations
-                                        popUpTo(navController.graph.findStartDestination().id) {
+                                        // Pop up to the start destination of the graph to avoid building up a large stack of destinations
+                                        // Find the start destination of the CURRENT nested graph (MAIN)
+                                        val startDestId = currentDestination?.parent?.startDestinationId
+                                            ?: navController.graph.findStartDestination().id
+
+                                        popUpTo(startDestId) {
                                             saveState = true
                                         }
                                         // Avoid multiple copies of the same destination
