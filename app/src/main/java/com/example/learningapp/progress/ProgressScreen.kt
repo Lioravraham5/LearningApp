@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.core.UiState
+import com.example.learningapp.progress.components.OverviewTabContent
 import com.example.learningapp.progress.components.ProgressHeader
 import kotlinx.coroutines.launch
 
@@ -128,18 +129,6 @@ fun ProgressScreenContent(
 }
 
 
-// STEP 5 PLACEHOLDERS - These handle the UI states (Loading, Success, Error)
-@Composable
-fun OverviewTabContent(state: UiState<OverviewData>) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        when (state) {
-            is UiState.Idle, is UiState.Loading -> CircularProgressIndicator()
-            is UiState.Error -> Text(text = state.message, color = MaterialTheme.colorScheme.error)
-            is UiState.Success -> Text(text = "Overview Loaded: ${state.data.averageScore}% Avg")
-        }
-    }
-}
-
 @Composable
 fun AchievementsTabContent(state: UiState<List<CategoryAchievement>>) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -172,7 +161,27 @@ fun ProgressScreenPreview() {
                 averageScore = 85,
                 totalCompletedLessons = 25,
                 totalEarnedBadges = 10,
-                dailyStreak = 14
+                dailyStreak = 14,
+                recentAchievements = listOf(
+                    RecentBadge(
+                        id = "rb1",
+                        title = "7 Days Streak",
+                        iconRes = android.R.drawable.star_on, // Placeholder icon
+                        earnedDate = "Today"
+                    ),
+                    RecentBadge(
+                        id = "rb2",
+                        title = "First Step",
+                        iconRes = android.R.drawable.star_on,
+                        earnedDate = "2 days ago"
+                    ),
+                    RecentBadge(
+                        id = "rb3",
+                        title = "Perfect Score",
+                        iconRes = android.R.drawable.star_on,
+                        earnedDate = "1 week ago"
+                    )
+                )
             )
         ),
         achievementsState = UiState.Idle, // Other tabs stay Idle for now

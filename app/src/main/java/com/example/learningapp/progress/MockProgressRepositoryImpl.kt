@@ -15,7 +15,27 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             averageScore = 85,
             totalCompletedLessons = 24,
             totalEarnedBadges = 6,
-            dailyStreak = 12
+            dailyStreak = 12,
+            recentAchievements = listOf(
+                RecentBadge(
+                    id = "rb1",
+                    title = "7 Days Streak",
+                    iconRes = android.R.drawable.star_on, // Placeholder icon
+                    earnedDate = "Today"
+                ),
+                RecentBadge(
+                    id = "rb2",
+                    title = "First Step",
+                    iconRes = android.R.drawable.star_on,
+                    earnedDate = "2 days ago"
+                ),
+                RecentBadge(
+                    id = "rb3",
+                    title = "Perfect Score",
+                    iconRes = android.R.drawable.star_on,
+                    earnedDate = "1 week ago"
+                )
+            )
         )
     }
 
