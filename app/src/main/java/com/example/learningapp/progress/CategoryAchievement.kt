@@ -6,5 +6,7 @@ data class CategoryAchievement(
     val iconRes: Int,
     val averageScore: Int,
     val completedLessons: Int,
-    val inProgressLessons: Int
+    val inProgressLessons: Int,
+    val unDoneLessons: Int,
+    val totalLessons: Int,
 )

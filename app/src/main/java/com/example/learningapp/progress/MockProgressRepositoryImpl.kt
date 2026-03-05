@@ -48,7 +48,9 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
                 iconRes = android.R.drawable.ic_menu_camera,
                 averageScore = 92,
                 completedLessons = 8,
-                inProgressLessons = 2
+                inProgressLessons = 2,
+                unDoneLessons = 5,
+                totalLessons = 15 // 8 + 2 + 5
             ),
             CategoryAchievement(
                 categoryId = "2",
@@ -56,7 +58,9 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
                 iconRes = android.R.drawable.ic_menu_gallery,
                 averageScore = 78,
                 completedLessons = 5,
-                inProgressLessons = 4
+                inProgressLessons = 4,
+                unDoneLessons = 11,
+                totalLessons = 20 // 5 + 4 + 11
             ),
             CategoryAchievement(
                 categoryId = "3",
@@ -64,7 +68,9 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
                 iconRes = android.R.drawable.ic_menu_manage,
                 averageScore = 100,
                 completedLessons = 10,
-                inProgressLessons = 0
+                inProgressLessons = 0,
+                unDoneLessons = 0, // 100% Completed!
+                totalLessons = 10 // 10 + 0 + 0
             )
         )
     }

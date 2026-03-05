@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.core.UiState
 import com.example.learningapp.progress.components.BadgesTabContent
+import com.example.learningapp.progress.components.CategoriesAchievementsTabContent
 import com.example.learningapp.progress.components.OverviewTabContent
 import com.example.learningapp.progress.components.ProgressHeader
 import kotlinx.coroutines.launch
@@ -122,24 +123,13 @@ fun ProgressScreenContent(
             // Switch statement to show the correct content based on the current page
             when (page) {
                 0 -> OverviewTabContent(state = state.overviewState)
-                1 -> AchievementsTabContent(state = state.achievementsState)
+                1 -> CategoriesAchievementsTabContent(state = state.achievementsState)
                 2 -> BadgesTabContent(state = state.badgesState)
             }
         }
     }
 }
 
-
-@Composable
-fun AchievementsTabContent(state: UiState<List<CategoryAchievement>>) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        when (state) {
-            is UiState.Idle, is UiState.Loading -> CircularProgressIndicator()
-            is UiState.Error -> Text(text = state.message, color = MaterialTheme.colorScheme.error)
-            is UiState.Success -> Text(text = "Achievements Loaded: ${state.data.size} Categories")
-        }
-    }
-}
 
 @Preview(showBackground = true, name = "Progress Screen - Overview Tab")
 @Composable
