@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.learningapp.avatar.Avatar
-import com.example.learningapp.core.AvatarType
+import com.example.learningapp.avatar.AvatarType
 
 /**
  * A section displaying the title and the available tutor options side-by-side.

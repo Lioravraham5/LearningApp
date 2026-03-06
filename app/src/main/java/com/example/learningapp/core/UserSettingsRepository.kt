@@ -1,5 +1,6 @@
 package com.example.learningapp.core
 
+import com.example.learningapp.avatar.AvatarType
 import kotlinx.coroutines.flow.Flow
 
 /**

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.learningapp.auth.AuthRepository
 import com.example.learningapp.auth.AuthResult
 import com.example.learningapp.auth.generateDisplayName
-import com.example.learningapp.core.AvatarType
+import com.example.learningapp.avatar.AvatarType
 import com.example.learningapp.core.UserSettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

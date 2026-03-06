@@ -13,7 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.learningapp.R
-import com.example.learningapp.core.AvatarType
+import com.example.learningapp.avatar.AvatarType
 
 /**
  * Global Avatar component that reacts to the selected gender and current viseme (mouth shape).

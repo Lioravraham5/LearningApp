@@ -1,4 +1,4 @@
-package com.example.learningapp.core
+package com.example.learningapp.avatar
 
 /**
  * Represents the available avatar genders in the app.
