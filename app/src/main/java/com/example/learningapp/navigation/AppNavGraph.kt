@@ -3,11 +3,14 @@ package com.example.learningapp.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.learningapp.auth.login.LoginScreen
 import com.example.learningapp.auth.register.RegisterScreen
 import androidx.navigation.navigation
+import com.example.learningapp.categoryDetails.CategoryDetailsScreen
 import com.example.learningapp.home.HomeScreen
 import com.example.learningapp.profile.ProfileScreen
 import com.example.learningapp.progress.ProgressScreen
@@ -72,7 +75,12 @@ fun AppNavGraph(
             startDestination = BottomNavItem.Home.route
         ) {
             composable(route = BottomNavItem.Home.route) {
-                HomeScreen()
+                HomeScreen(
+                    onNavigateToCategory = { categoryId ->
+                        // When a category is clicked, navigate to the Details screen with its ID
+                        navController.navigate(MainScreen.CategoryDetails.createRoute(categoryId))
+                    }
+                )
             }
 
             composable(route = BottomNavItem.Progress.route) {
@@ -85,6 +93,22 @@ fun AppNavGraph(
                         navController.navigate(Graph.AUTH) {
                             popUpTo(Graph.MAIN) { inclusive = true }
                         }
+                    }
+                )
+            }
+
+            composable(
+                route = MainScreen.CategoryDetails.route,
+                // We tell the NavGraph to expect a String parameter named "categoryId"
+                arguments = listOf(
+                    navArgument("categoryId") {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                CategoryDetailsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
                     }
                 )
             }

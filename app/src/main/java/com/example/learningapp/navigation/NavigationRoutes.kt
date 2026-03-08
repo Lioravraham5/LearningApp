@@ -24,6 +24,23 @@ sealed class AuthScreen(val route: String) {
 }
 
 /**
+ * Screens inside the Main Application Graph that are NOT on the Bottom Navigation Bar.
+ */
+sealed class MainScreen(val route: String) {
+    // The route includes a placeholder parameter: {categoryId}
+    object CategoryDetails : MainScreen("category_details/{categoryId}") {
+
+        /**
+         * A helper function to easily create the route string when we want to navigate.
+         * Usage: MainScreen.CategoryDetails.createRoute("1") -> returns "category_details/1"
+         */
+        fun createRoute(categoryId: String): String {
+            return "category_details/$categoryId"
+        }
+    }
+}
+
+/**
  * Screens inside the Main Application Graph (Bottom Navigation).
  */
 sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {

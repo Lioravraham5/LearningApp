@@ -29,7 +29,8 @@ import com.example.learningapp.home.components.HomeHeader
  */
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    onNavigateToCategory: (String) -> Unit
 ) {
     // Collects the state in a lifecycle-aware manner.
     val state by viewModel.homeState.collectAsStateWithLifecycle()
@@ -40,7 +41,10 @@ fun HomeScreen(
     }
 
     // Pass the collected state to the stateless UI component
-    HomeScreenContent(state = state)
+    HomeScreenContent(
+        state = state,
+        onCategoryClick = onNavigateToCategory
+    )
 }
 
 /**
@@ -50,7 +54,8 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     state: HomeState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCategoryClick: (String) -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
 
@@ -98,7 +103,7 @@ fun HomeScreenContent(
                         CategoryCard(
                             category = category,
                             onClick = {
-                                // TODO: Handle navigation to category details
+                                onCategoryClick(category.id)
                             }
                         )
                     }
