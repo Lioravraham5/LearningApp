@@ -144,7 +144,7 @@ fun CategoryAchievementItem(
                 )
 
                 CategoryMiniStat(
-                    label = "Locked",
+                    label = "Not Started",
                     value = achievement.unDoneLessons,
                     valueColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
