@@ -74,9 +74,9 @@ dependencies {
 
     // --- Hilt ---
     // Hilt Android: Core library for Dependency Injection in Android
-    implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation("com.google.dagger:hilt-android:2.55")
     // Hilt Compiler: Annotation processor for generating DI code
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.55")
     // Hilt Navigation Compose: Integration between Hilt and Compose Navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
@@ -88,7 +88,13 @@ dependencies {
     // --- Networking & External Services ---
     // Azure Cognitive Services Speech: SDK for speech-to-text and text-to-speech
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.47.0")
+    // OkHttp & Logging (Crucial for debugging network calls)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0") // To convert JSON to Kotlin Data Classes
+
 
     // Material Icons (The extended set)
     implementation("androidx.compose.material:material-icons-extended")

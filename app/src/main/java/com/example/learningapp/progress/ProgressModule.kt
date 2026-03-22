@@ -19,6 +19,6 @@ abstract class ProgressModule {
      */
     @Binds
     abstract fun bindProgressRepository(
-        mockProgressRepositoryImpl: MockProgressRepositoryImpl
+        mockProgressRepositoryImpl: RemoteProgressRepositoryImpl
     ): ProgressRepository
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.learningapp.core.toRelativeTimeSpan
 import com.example.learningapp.progress.RecentBadge
 
 @Composable
@@ -66,7 +67,7 @@ fun RecentBadgeItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = badge.iconRes),
+                    painter = painterResource(id = badge.iconUrl),
                     contentDescription = badge.title,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(24.dp)
@@ -88,7 +89,7 @@ fun RecentBadgeItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = badge.earnedDate, // e.g., "2 days ago"
+                    text = badge.earnedDate.toRelativeTimeSpan(), // e.g., "2 days ago"
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -124,7 +125,6 @@ fun RecentBadgeItemPreview() {
         id = "1",
         title = "Grammar Master",
         earnedDate = "2 days ago",
-        iconRes = android.R.drawable.ic_menu_help // Standard Android system icon for preview
     )
 
     MaterialTheme {
@@ -145,7 +145,6 @@ fun RecentBadgeItemPreview() {
                         id = "2",
                         title = "Vocabulary Voyager",
                         earnedDate = "Just now",
-                        iconRes = android.R.drawable.ic_menu_help
                     )
                 )
             }

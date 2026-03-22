@@ -102,7 +102,7 @@ fun BadgeItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(id = badge.iconRes),
+                        painter = painterResource(id = badge.iconUrl),
                         contentDescription = badge.title,
                         tint = iconTintColor,
                         modifier = Modifier.size(32.dp)
@@ -176,7 +176,6 @@ fun BadgeItemPreview() {
                         id = "1",
                         title = "Fast Learner",
                         description = "Complete 5 lessons in one day",
-                        iconRes = android.R.drawable.ic_menu_agenda,
                         isAchieved = true
                     ),
                     modifier = Modifier.weight(1f),
@@ -189,7 +188,6 @@ fun BadgeItemPreview() {
                         id = "2",
                         title = "Polyglot",
                         description = "Learn 100 new words in a week",
-                        iconRes = android.R.drawable.ic_menu_compass,
                         isAchieved = false
                     ),
                     modifier = Modifier.weight(1f),

@@ -53,7 +53,7 @@ fun CategoryCard(
 
             // Category Icon
             Icon(
-                painter = painterResource(id = category.iconRes),
+                painter = painterResource(id = category.iconUrl),
                 contentDescription = category.title,
                 modifier = Modifier
                     .size(48.dp),
@@ -125,9 +125,9 @@ fun CategoryCardPreview() {
                 id = "1",
                 title = "Job Interview",
                 description = "Master professional language for successful job interviews",
-                iconRes = android.R.drawable.ic_menu_camera,
                 totalLessons = 12,
-                completedLessons = 5
+                completedLessons = 5,
+                progressPercentage = 0.4f
             )
         )
     }

@@ -183,19 +183,16 @@ fun OverviewSuccessContentPreview() {
             RecentBadge(
                 id = "rb1",
                 title = "10 Days Streak",
-                iconRes = R.drawable.star_on, // Using Android's default star icon for preview
                 earnedDate = "Today"
             ),
             RecentBadge(
                 id = "rb2",
                 title = "Perfect Score",
-                iconRes = R.drawable.ic_menu_agenda, // Another default icon
                 earnedDate = "2 days ago"
             ),
             RecentBadge(
                 id = "rb3",
                 title = "First Step",
-                iconRes = R.drawable.ic_menu_compass,
                 earnedDate = "1 week ago"
             )
         )

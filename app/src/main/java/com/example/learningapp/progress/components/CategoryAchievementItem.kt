@@ -83,7 +83,7 @@ fun CategoryAchievementItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        painter = painterResource(id = achievement.iconRes),
+                        painter = painterResource(id = achievement.iconUrl),
                         contentDescription = achievement.categoryName,
                         tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.size(24.dp)
@@ -204,7 +204,6 @@ fun CategoryAchievementItemPreview() {
     val mockAchievement = CategoryAchievement(
         categoryId = "1",
         categoryName = "Android Development",
-        iconRes = android.R.drawable.ic_menu_camera,
         averageScore = 92,
         completedLessons = 10,
         inProgressLessons = 3,

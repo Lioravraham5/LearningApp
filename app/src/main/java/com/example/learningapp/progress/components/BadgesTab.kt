@@ -99,28 +99,24 @@ fun BadgesTabPreview() {
             id = "b1",
             title = "First Step",
             description = "Completed your very first lesson.",
-            iconRes = android.R.drawable.star_on,
             isAchieved = true
         ),
         Badge(
             id = "b2",
             title = "10 Days Streak",
             description = "Learned for 10 consecutive days.",
-            iconRes = android.R.drawable.ic_menu_myplaces,
             isAchieved = true
         ),
         Badge(
             id = "b3",
             title = "Perfect Score",
             description = "Completed a lesson with 100% accuracy.",
-            iconRes = android.R.drawable.ic_menu_agenda,
             isAchieved = false
         ),
         Badge(
             id = "b4",
             title = "Globetrotter",
             description = "Completed the 'Trip Abroad' category.",
-            iconRes = android.R.drawable.ic_menu_mapmode,
             isAchieved = false
         )
     )

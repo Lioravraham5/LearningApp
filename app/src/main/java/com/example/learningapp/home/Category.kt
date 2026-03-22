@@ -1,14 +1,18 @@
 package com.example.learningapp.home
 
+import com.google.gson.annotations.SerializedName
+
 data class Category(
     val id: String,
     val title: String,
     val description: String,
-    val iconRes: Int,
-    val totalLessons: Int,
-    val completedLessons: Int
+    //@SerializedName("icon") val iconUrl: String?,
+    @SerializedName("total_lessons") val totalLessons: Int,
+    @SerializedName("completed_lessons") val completedLessons: Int,
+    @SerializedName("progress_percentage") val progressPercentage: Float
 ) {
-    // property for calculate the progress percentage
-    val progressPercentage: Float
-        get() = if (totalLessons > 0) completedLessons.toFloat() / totalLessons.toFloat() else 0f
+    // BEST PRACTICE: Hardcoded icon for the UI.
+    // Since it's not in the constructor, Retrofit ignores it when parsing the JSON.
+    val iconUrl: Int
+        get() = android.R.drawable.ic_menu_camera
 }

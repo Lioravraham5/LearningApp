@@ -84,7 +84,7 @@ fun BadgeDetailDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = painterResource(id = badge.iconRes),
+                            painter = painterResource(id = badge.iconUrl),
                             contentDescription = badge.title,
                             tint = iconTintColor,
                             modifier = Modifier.size(48.dp) // Significantly larger icon for the detail view
@@ -157,7 +157,6 @@ fun BadgeDetailDialogPreview() {
         id = "1",
         title = "Language Master",
         description = "You have shown incredible dedication by completing 50 lessons with a perfect score! Keep up the amazing work.",
-        iconRes = android.R.drawable.ic_menu_compass,
         isAchieved = true
     )
 
@@ -185,7 +184,6 @@ fun BadgeDetailDialogLockedPreview() {
         id = "2",
         title = "Early Bird",
         description = "Complete a lesson before 7:00 AM to unlock this special achievement.",
-        iconRes = android.R.drawable.ic_menu_info_details,
         isAchieved = false
     )
 

@@ -19,6 +19,6 @@ abstract class HomeModule {
      */
     @Binds
     abstract fun bindHomeRepository(
-        homeRepositoryImpl: MockHomeRepositoryImpl
+        homeRepositoryImpl: RemoteHomeRepositoryImpl
     ): HomeRepository
 }

@@ -45,7 +45,7 @@ fun CategoryDetailsHeader(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = category.iconRes),
+                painter = painterResource(id = category.iconUrl),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(48.dp)
@@ -79,7 +79,6 @@ fun CategoryDetailsHeaderPreview() {
         id = "cat_1",
         title = "Advanced Grammar",
         description = "Master the complexities of verb conjugations, sentence structures, and advanced tenses to speak like a native.",
-        iconRes = android.R.drawable.ic_menu_sort_alphabetically, // Safe vector icon for preview
         lessons = emptyList() // The header doesn't render lessons, so an empty list is fine here
     )
 

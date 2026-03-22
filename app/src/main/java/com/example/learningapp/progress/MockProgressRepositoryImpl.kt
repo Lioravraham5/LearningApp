@@ -20,19 +20,16 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
                 RecentBadge(
                     id = "rb1",
                     title = "7 Days Streak",
-                    iconRes = android.R.drawable.star_on, // Placeholder icon
                     earnedDate = "Today"
                 ),
                 RecentBadge(
                     id = "rb2",
                     title = "First Step",
-                    iconRes = android.R.drawable.star_on,
                     earnedDate = "2 days ago"
                 ),
                 RecentBadge(
                     id = "rb3",
                     title = "Perfect Score",
-                    iconRes = android.R.drawable.star_on,
                     earnedDate = "1 week ago"
                 )
             )
@@ -45,7 +42,6 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             CategoryAchievement(
                 categoryId = "1",
                 categoryName = "Trip Abroad",
-                iconRes = android.R.drawable.ic_menu_camera,
                 averageScore = 92,
                 completedLessons = 8,
                 inProgressLessons = 2,
@@ -55,7 +51,6 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             CategoryAchievement(
                 categoryId = "2",
                 categoryName = "Job Interview",
-                iconRes = android.R.drawable.ic_menu_gallery,
                 averageScore = 78,
                 completedLessons = 5,
                 inProgressLessons = 4,
@@ -65,7 +60,6 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             CategoryAchievement(
                 categoryId = "3",
                 categoryName = "Daily Life",
-                iconRes = android.R.drawable.ic_menu_manage,
                 averageScore = 100,
                 completedLessons = 10,
                 inProgressLessons = 0,
@@ -82,28 +76,24 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
                 id = "b1",
                 title = "First Step",
                 description = "Completed your very first lesson.",
-                iconRes = android.R.drawable.star_on, // Placeholder icon
                 isAchieved = true
             ),
             Badge(
                 id = "b2",
                 title = "10 Days Streak",
                 description = "Learned for 10 consecutive days.",
-                iconRes = android.R.drawable.star_on,
                 isAchieved = true
             ),
             Badge(
                 id = "b3",
                 title = "Perfect Score",
                 description = "Completed a lesson with 100% accuracy.",
-                iconRes = android.R.drawable.star_off, // Placeholder for locked
                 isAchieved = false
             ),
             Badge(
                 id = "b4",
                 title = "Globetrotter",
                 description = "Completed the 'Trip Abroad' category.",
-                iconRes = android.R.drawable.star_off,
                 isAchieved = false
             )
         )

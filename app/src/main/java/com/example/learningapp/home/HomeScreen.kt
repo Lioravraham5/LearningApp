@@ -127,41 +127,41 @@ fun HomeScreenPreview() {
                         id = "1",
                         title = "Trip Abroad",
                         description = "Learn essential phrases for traveling.",
-                        iconRes = android.R.drawable.ic_menu_camera,
                         totalLessons = 8,
-                        completedLessons = 2
+                        completedLessons = 2,
+                        progressPercentage = 0.33f
                     ),
                     Category(
                         id = "2",
                         title = "Job Interview",
                         description = "Master professional language.",
-                        iconRes = android.R.drawable.ic_menu_gallery,
                         totalLessons = 12,
-                        completedLessons = 5
+                        completedLessons = 5,
+                        progressPercentage = 0.4f
                     ),
                     Category(
                         id = "3",
                         title = "Socializing",
                         description = "Learn how to introduce yourself and make friends.",
-                        iconRes = android.R.drawable.ic_menu_myplaces,
                         totalLessons = 10,
-                        completedLessons = 7
+                        completedLessons = 7,
+                        progressPercentage = 0.7f
                     ),
                     Category(
                         id = "4",
                         title = "At the Restaurant",
                         description = "Ordering food and talking to waiters.",
-                        iconRes = android.R.drawable.ic_menu_view,
                         totalLessons = 6,
-                        completedLessons = 0
+                        completedLessons = 0,
+                        progressPercentage = 0f
                     ),
                     Category(
                         id = "5",
                         title = "Shopping",
                         description = "Master phrases for buying clothes and groceries.",
-                        iconRes = android.R.drawable.ic_menu_manage,
                         totalLessons = 15,
-                        completedLessons = 3
+                        completedLessons = 3,
+                        progressPercentage = 0.2f
                     )
                 ),
                 error = null

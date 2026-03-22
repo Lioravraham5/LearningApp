@@ -88,7 +88,6 @@ fun AchievementsTabPreview() {
         CategoryAchievement(
             categoryId = "1",
             categoryName = "Trip Abroad",
-            iconRes = android.R.drawable.ic_menu_camera,
             averageScore = 92,
             completedLessons = 8,
             inProgressLessons = 2,
@@ -98,7 +97,6 @@ fun AchievementsTabPreview() {
         CategoryAchievement(
             categoryId = "2",
             categoryName = "Job Interview",
-            iconRes = android.R.drawable.ic_menu_gallery,
             averageScore = 78,
             completedLessons = 5,
             inProgressLessons = 4,
@@ -108,7 +106,6 @@ fun AchievementsTabPreview() {
         CategoryAchievement(
             categoryId = "3",
             categoryName = "Daily Life",
-            iconRes = android.R.drawable.ic_menu_manage,
             averageScore = 100,
             completedLessons = 10,
             inProgressLessons = 0,

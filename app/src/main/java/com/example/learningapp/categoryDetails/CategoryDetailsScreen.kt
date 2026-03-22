@@ -172,7 +172,6 @@ private val mockCategoryDetailsPreview = CategoryDetails(
     id = "cat_1",
     title = "Advanced Grammar",
     description = "Master the complexities of verb conjugations, sentence structures, and advanced tenses to speak like a native.",
-    iconRes = android.R.drawable.ic_menu_sort_alphabetically, // Safe system icon
     lessons = mockLessonsPreview
 )
 

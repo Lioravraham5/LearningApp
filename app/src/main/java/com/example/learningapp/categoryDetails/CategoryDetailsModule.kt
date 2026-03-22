@@ -19,6 +19,6 @@ abstract class CategoryDetailsModule {
      */
     @Binds
     abstract fun bindCategoryDetailsRepository(
-        impl: MockCategoryDetailsRepositoryImpl
+        impl: RemoteCategoryDetailsRepositoryImpl
     ): CategoryDetailsRepository
 }
