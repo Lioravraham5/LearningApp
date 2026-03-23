@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.learningapp.core.UiState
 import com.example.learningapp.progress.CategoryAchievement
+import com.example.learningapp.ui.components.ErrorStateComponent
 
 /**
  * Entry point for the Categories / Achievements Tab.
@@ -27,6 +27,7 @@ import com.example.learningapp.progress.CategoryAchievement
 @Composable
 fun CategoriesAchievementsTabContent(
     state: UiState<List<CategoryAchievement>>,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -38,10 +39,9 @@ fun CategoriesAchievementsTabContent(
                 CircularProgressIndicator()
             }
             is UiState.Error -> {
-                Text(
-                    text = state.message,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
+                ErrorStateComponent(
+                    message = state.message,
+                    onRetry = onRetry
                 )
             }
             is UiState.Success -> {

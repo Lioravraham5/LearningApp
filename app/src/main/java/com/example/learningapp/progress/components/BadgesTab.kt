@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,10 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.learningapp.core.UiState
 import com.example.learningapp.progress.Badge
+import com.example.learningapp.ui.components.ErrorStateComponent
 
 @Composable
 fun BadgesTabContent(
     state: UiState<List<Badge>>,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -37,10 +38,9 @@ fun BadgesTabContent(
                 CircularProgressIndicator()
             }
             is UiState.Error -> {
-                Text(
-                    text = state.message,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
+                ErrorStateComponent(
+                    message = state.message,
+                    onRetry = onRetry
                 )
             }
             is UiState.Success -> {

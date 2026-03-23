@@ -119,9 +119,18 @@ fun ProgressScreenContent(
         ) { page ->
             // Switch statement to show the correct content based on the current page
             when (page) {
-                0 -> OverviewTabContent(state = state.overviewState)
-                1 -> CategoriesAchievementsTabContent(state = state.achievementsState)
-                2 -> BadgesTabContent(state = state.badgesState)
+                0 -> OverviewTabContent(
+                    state = state.overviewState,
+                    onRetry = {onTabSelected(0)}
+                )
+                1 -> CategoriesAchievementsTabContent(
+                    state = state.achievementsState,
+                    onRetry = {onTabSelected(1)}
+                )
+                2 -> BadgesTabContent(
+                    state = state.badgesState,
+                    onRetry = {onTabSelected(2)}
+                )
             }
         }
     }

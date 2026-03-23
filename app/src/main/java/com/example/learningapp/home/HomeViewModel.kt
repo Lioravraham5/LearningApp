@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
     }
 
     // Fetches user data and categories.
-    private fun loadHomeData() {
+    fun loadHomeData() {
         viewModelScope.launch {
             // Show loading state.
             _homeState.update { it.copy(isLoading = true) }

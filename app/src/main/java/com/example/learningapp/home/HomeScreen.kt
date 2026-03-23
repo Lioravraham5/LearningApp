@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.home.components.CategoryCard
 import com.example.learningapp.home.components.HomeHeader
+import com.example.learningapp.ui.components.ErrorStateComponent
 
 /**
  * Stateful entry point for the Home Screen.
@@ -43,7 +43,8 @@ fun HomeScreen(
     // Pass the collected state to the stateless UI component
     HomeScreenContent(
         state = state,
-        onCategoryClick = onNavigateToCategory
+        onCategoryClick = onNavigateToCategory,
+        onRetry = { viewModel.loadHomeData() }
     )
 }
 
@@ -55,7 +56,8 @@ fun HomeScreen(
 fun HomeScreenContent(
     state: HomeState,
     modifier: Modifier = Modifier,
-    onCategoryClick: (String) -> Unit = {}
+    onCategoryClick: (String) -> Unit,
+    onRetry: () -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
 
@@ -67,9 +69,9 @@ fun HomeScreenContent(
         }
         // Handle Error State
         else if (state.error != null) {
-            Text(
-                text = state.error,
-                color = MaterialTheme.colorScheme.error,
+            ErrorStateComponent(
+                message = state.error,
+                onRetry = onRetry,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
@@ -165,7 +167,26 @@ fun HomeScreenPreview() {
                     )
                 ),
                 error = null
-            )
+            ),
+            onCategoryClick = {},
+            onRetry = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Home Screen - Error State")
+@Composable
+fun HomeScreenErrorPreview() {
+    MaterialTheme {
+        HomeScreenContent(
+            state = HomeState(
+                isLoading = false,
+                userName = "Liora",
+                categories = emptyList(),
+                error = "HTTP 401 Unauthorized"
+            ),
+            onCategoryClick = {},
+            onRetry = {}
         )
     }
 }

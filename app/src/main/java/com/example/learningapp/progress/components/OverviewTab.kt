@@ -1,6 +1,5 @@
 package com.example.learningapp.progress.components
 
-import android.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.learningapp.core.UiState
 import com.example.learningapp.progress.OverviewData
 import com.example.learningapp.progress.RecentBadge
+import com.example.learningapp.ui.components.ErrorStateComponent
 
 /**
  * Entry point for the Overview Tab.
@@ -40,6 +40,7 @@ import com.example.learningapp.progress.RecentBadge
 @Composable
 fun OverviewTabContent(
     state: UiState<OverviewData>,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -51,10 +52,9 @@ fun OverviewTabContent(
                 CircularProgressIndicator()
             }
             is UiState.Error -> {
-                Text(
-                    text = state.message,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
+                ErrorStateComponent(
+                    message = state.message,
+                    onRetry = onRetry
                 )
             }
             is UiState.Success -> {
