@@ -2,6 +2,7 @@ package com.example.learningapp.network
 
 import com.example.learningapp.categoryDetails.CategoryDetails
 import com.example.learningapp.home.Category
+import com.example.learningapp.lessonDetails.LessonDetails
 import com.example.learningapp.progress.Badge
 import com.example.learningapp.progress.CategoryAchievement
 import com.example.learningapp.progress.OverviewData
@@ -27,6 +28,14 @@ interface ApiService {
         @Path("category_id") categoryId: String
     ): CategoryDetails
 
+    // ==========================================
+    // LESSONS ENDPOINTS
+    // ==========================================
+
+    @GET("lessons/{lesson_id}")
+    suspend fun getLessonDetails(
+        @Path("lesson_id") lessonId: String
+    ): LessonDetails
 
     // ==========================================
     // PROGRESS ENDPOINTS

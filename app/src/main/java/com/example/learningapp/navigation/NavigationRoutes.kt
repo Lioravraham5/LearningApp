@@ -38,6 +38,17 @@ sealed class MainScreen(val route: String) {
             return "category_details/$categoryId"
         }
     }
+
+    // The route includes a placeholder parameter: {lessonId}
+    object LessonDetails : MainScreen("lesson_details/{lessonId}") {
+        /**
+         * A helper function to easily create the route string when we want to navigate.
+         * Usage: MainScreen.LessonDetails.createRoute("1") -> returns "lesson_details/1"
+         */
+        fun createRoute(lessonId: String): String {
+            return "lesson_details/$lessonId"
+        }
+    }
 }
 
 /**

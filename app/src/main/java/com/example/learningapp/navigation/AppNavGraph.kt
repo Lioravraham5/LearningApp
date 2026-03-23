@@ -12,6 +12,7 @@ import com.example.learningapp.auth.register.RegisterScreen
 import androidx.navigation.navigation
 import com.example.learningapp.categoryDetails.CategoryDetailsScreen
 import com.example.learningapp.home.HomeScreen
+import com.example.learningapp.lessonDetails.LessonDetailsScreen
 import com.example.learningapp.profile.ProfileScreen
 import com.example.learningapp.progress.ProgressScreen
 
@@ -108,6 +109,31 @@ fun AppNavGraph(
             ) {
                 CategoryDetailsScreen(
                     onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToLesson = { lessonId ->
+                        navController.navigate(MainScreen.LessonDetails.createRoute(lessonId))
+                    }
+                )
+            }
+
+            composable(
+                route = MainScreen.LessonDetails.route,
+                // Tell the NavGraph to expect a String parameter named "lessonId"
+                arguments = listOf(
+                    navArgument("lessonId") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { navBackStackEntry ->
+                // Extract the parameter from the arguments just for the placeholder
+                // BEST PRACTICE: In the final version, the ViewModel will extract this via SavedStateHandle.
+                val lessonId = navBackStackEntry.arguments?.getString("lessonId")
+
+                LessonDetailsScreen(
+                    lessonId = lessonId,
+                    onBackClick = {
+                        // Standard back navigation
                         navController.popBackStack()
                     }
                 )
