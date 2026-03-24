@@ -75,7 +75,7 @@ fun LessonDetailsContent(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { }, // Empty title for a cleaner look
+                title = { },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -85,20 +85,11 @@ fun LessonDetailsContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.background // Consistent background
                 )
             )
-        },
-        // BEST PRACTICE: Anchor the action buttons to the bottom using bottomBar
-        bottomBar = {
-            if (state is UiState.Success) {
-                LessonDetailsActionButtons(
-                    lesson = state.data,
-                    onStartLesson = { onStartLesson(state.data.id) },
-                    onResumeLesson = { onResumeLesson(state.data.id, state.data.completedSentences) }
-                )
-            }
         }
+        // Notice: bottomBar is COMPLETELY REMOVED!
     ) { innerPadding ->
 
         Box(
@@ -121,7 +112,7 @@ fun LessonDetailsContent(
                 is UiState.Success -> {
                     val lesson = state.data
 
-                    // Scrollable content area
+                    // Scrollable content area now contains EVERYTHING
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -130,13 +121,18 @@ fun LessonDetailsContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-                        // 1. The Header (Icon, Title, Description)
+                        // 1. The Header
                         LessonDetailsHeader(lesson = lesson)
 
-                        // 2. The Info Card (Sentences Count)
+                        // 2. The Upgraded Info Card
                         LessonDetailsInfoCard(lesson = lesson)
 
-                        // Note: Buttons are handled by the Scaffold's bottomBar!
+                        // 3. The Action Buttons (Now flow naturally with the content!)
+                        LessonDetailsActionButtons(
+                            lesson = lesson,
+                            onStartLesson = { onStartLesson(lesson.id) },
+                            onResumeLesson = { onResumeLesson(lesson.id, lesson.completedSentences) }
+                        )
                     }
                 }
             }

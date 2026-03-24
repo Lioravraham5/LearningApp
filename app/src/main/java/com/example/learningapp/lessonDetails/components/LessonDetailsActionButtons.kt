@@ -1,5 +1,6 @@
 package com.example.learningapp.lessonDetails.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -7,13 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayCircle
 import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,51 +38,46 @@ fun LessonDetailsActionButtons(
     onResumeLesson: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // BEST PRACTICE: Use a Surface with tonal elevation to separate the bottom bar from the scrollable content
-    Surface(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        tonalElevation = 8.dp, // Adds a subtle shadow/color change in M3
-        color = MaterialTheme.colorScheme.surface
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                // NavigationBar/WindowInsets padding can be added here if needed
-                .navigationBarsPadding()
-        ) {
-            if (lesson.isInProgress) {
-                // SCENARIO A: Lesson is in progress
-                // Primary Button -> Resume
-                Button(
-                    onClick = onResumeLesson,
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    Icon(Icons.Outlined.PlayCircle, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Resume Lesson", style = MaterialTheme.typography.labelLarge)
-                }
+        if (lesson.isInProgress) {
+            // Main Action: Resume
+            Button(
+                onClick = onResumeLesson,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp), // Taller, premium feel
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Outlined.PlayCircle, contentDescription = null, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Resume Lesson", style = MaterialTheme.typography.titleMedium)
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Secondary Button -> Restart (Low emphasis)
-                TextButton(
-                    onClick = onStartLesson, // Starting over
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Outlined.Replay, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Restart from beginning")
-                }
-            } else {
-                // SCENARIO B: Lesson is brand new (or fully completed and needs a replay)
-                Button(
-                    onClick = onStartLesson,
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp)
-                ) {
-                    Text("Start Lesson", style = MaterialTheme.typography.labelLarge)
-                }
+            // Secondary Action: Restart (Outlined to show lower priority)
+            OutlinedButton(
+                onClick = onStartLesson,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Outlined.Replay, contentDescription = null, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Restart from beginning", style = MaterialTheme.typography.titleMedium)
+            }
+        } else {
+            // Main Action: Start
+            Button(
+                onClick = onStartLesson,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Start Lesson", style = MaterialTheme.typography.titleMedium)
             }
         }
     }
