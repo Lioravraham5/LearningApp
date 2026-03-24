@@ -1,4 +1,4 @@
-package com.example.learningapp.categoryDetails.components
+package com.example.learningapp.lessonDetails.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,22 +21,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.learningapp.categoryDetails.CategoryDetails
+import com.example.learningapp.lessonDetails.LessonDetails
 
 /**
- * A private helper component specifically for the beautiful top section of the details screen.
+ * A helper component specifically for the top section of the lesson details screen.
+ * Adapted to perfectly match the design language of CategoryDetailsHeader.
  */
 @Composable
-fun CategoryDetailsHeader(
-    category: CategoryDetails,
+fun LessonDetailsHeader(
+    lesson: LessonDetails,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally, // Center everything
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Large Circular Icon Background
+        // Large Circular Icon Background (M3 styling)
         Box(
             modifier = Modifier
                 .size(96.dp)
@@ -45,24 +46,24 @@ fun CategoryDetailsHeader(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = category.iconUrl),
+                painter = painterResource(id = lesson.iconUrl),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(48.dp)
             )
         }
 
-        // Category Title
+        // Lesson Title
         Text(
-            text = category.title,
+            text = lesson.title,
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
 
-        // Category Description
+        // Lesson Description
         Text(
-            text = category.description,
+            text = lesson.description,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -75,27 +76,23 @@ fun CategoryDetailsHeader(
 // PREVIEW
 // ==========================================
 
-@Preview(showBackground = true, name = "Category Details Header")
+@Preview(showBackground = true, name = "Lesson Details Header - Light Mode")
 @Composable
-fun CategoryDetailsHeaderPreview() {
-    // 1. Create mock data for the category
-    val mockCategory = CategoryDetails(
-        id = "cat_1",
-        title = "Advanced Grammar",
-        description = "Master the complexities of verb conjugations, sentence structures, and advanced tenses to speak like a native.",
-        lessons = emptyList() // The header doesn't render lessons, so an empty list is fine here
-    )
-
+fun LessonDetailsHeaderPreview() {
     MaterialTheme {
-        // 2. Wrap in a Surface to ensure correct background and text colors
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            CategoryDetailsHeader(
-                category = mockCategory,
-                // Add some vertical padding just so it looks nice and centered in the preview window
-                modifier = Modifier.padding(vertical = 32.dp)
+        // Surface provides the default Material background color
+        Surface(color = MaterialTheme.colorScheme.background) {
+            val mockLesson = LessonDetails(
+                id = "mock_l1",
+                title = "Introduction to Greetings",
+                description = "Learn the basics of saying hello, goodbye, and introducing yourself in everyday casual conversations.",
+                sentencesCount = 10,
+                completedSentences = 3
+            )
+
+            LessonDetailsHeader(
+                lesson = mockLesson,
+                modifier = Modifier.padding(vertical = 24.dp)
             )
         }
     }

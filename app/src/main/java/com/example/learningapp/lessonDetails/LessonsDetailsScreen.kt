@@ -1,32 +1,81 @@
 package com.example.learningapp.lessonDetails
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.learningapp.core.UiState
+import com.example.learningapp.lessonDetails.components.LessonDetailsActionButtons
+import com.example.learningapp.lessonDetails.components.LessonDetailsHeader
+import com.example.learningapp.lessonDetails.components.LessonDetailsInfoCard
+import com.example.learningapp.ui.components.ErrorStateComponent
 
-@OptIn(ExperimentalMaterial3Api::class) // Required for TopAppBar
 @Composable
 fun LessonDetailsScreen(
-    lessonId: String?,
-    onBackClick: () -> Unit
+    viewModel: LessonDetailsViewModel = hiltViewModel(),
+    onBackClick: () -> Unit,
+    // Callbacks to navigate to the actual player screen
+    onNavigateToLessonPlayer: (lessonId: String, startIndex: Int) -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LessonDetailsContent(
+        state = uiState,
+        onBackClick = onBackClick,
+        onStartLesson = { lessonId ->
+            // Start from index 0
+            onNavigateToLessonPlayer(lessonId, 0)
+        },
+        onResumeLesson = { lessonId, completedCount ->
+            // Resume from the exact sentence index they left off
+            onNavigateToLessonPlayer(lessonId, completedCount)
+        },
+        onRetry = {
+            viewModel.loadLessonDetails()
+        }
+    )
+}
+
+// ==========================================
+// STATELESS UI COMPONENT
+// ==========================================
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LessonDetailsContent(
+    state: UiState<LessonDetails>,
+    onBackClick: () -> Unit,
+    onStartLesson: (String) -> Unit,
+    onResumeLesson: (String, Int) -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
+        modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { /* Empty title, we will show the title in the header */ },
+                title = { }, // Empty title for a cleaner look
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -34,20 +83,63 @@ fun LessonDetailsScreen(
                             contentDescription = "Navigate Back"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
+        },
+        // BEST PRACTICE: Anchor the action buttons to the bottom using bottomBar
+        bottomBar = {
+            if (state is UiState.Success) {
+                LessonDetailsActionButtons(
+                    lesson = state.data,
+                    onStartLesson = { onStartLesson(state.data.id) },
+                    onResumeLesson = { onResumeLesson(state.data.id, state.data.completedSentences) }
+                )
+            }
         }
-    ) { padding ->
+    ) { innerPadding ->
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Navigated to Lesson ID: $lessonId",
-                style = MaterialTheme.typography.titleLarge
-            )
+            when (state) {
+                is UiState.Idle, is UiState.Loading -> {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+                is UiState.Error -> {
+                    ErrorStateComponent(
+                        message = state.message,
+                        onRetry = onRetry
+                    )
+                }
+                is UiState.Success -> {
+                    val lesson = state.data
+
+                    // Scrollable content area
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                    ) {
+                        // 1. The Header (Icon, Title, Description)
+                        LessonDetailsHeader(lesson = lesson)
+
+                        // 2. The Info Card (Sentences Count)
+                        LessonDetailsInfoCard(lesson = lesson)
+
+                        // Note: Buttons are handled by the Scaffold's bottomBar!
+                    }
+                }
+            }
         }
     }
 }
@@ -55,24 +147,78 @@ fun LessonDetailsScreen(
 // ==========================================
 // PREVIEW
 // ==========================================
-@Preview(showBackground = true, name = "1. Lesson Details - With ID")
+
+// --- Mock Data ---
+private val mockNewLesson = LessonDetails(
+    id = "l1_1",
+    title = "At the Airport",
+    description = "Learn essential vocabulary for checking in, dropping off bags, and going through security without breaking a sweat.",
+    sentencesCount = 12,
+    completedSentences = 0 // Brand-new lesson
+)
+
+private val mockInProgressLesson = LessonDetails(
+    id = "l1_2",
+    title = "Job Interview Basics",
+    description = "Master professional language and soft skills for successful job interviews in English. Make a great first impression.",
+    sentencesCount = 20,
+    completedSentences = 8 // In progress
+)
+
+// --- Previews ---
+
+@Preview(showBackground = true, name = "1. Full Screen - New Lesson")
 @Composable
-fun LessonDetailsScreenPreview() {
+fun LessonDetailsContentNewPreview() {
     MaterialTheme {
-        LessonDetailsScreen(
-            lessonId = "l1_1", // Simulating a valid passed ID
-            onBackClick = { /* Preview: Do nothing */ }
+        LessonDetailsContent(
+            state = UiState.Success(mockNewLesson),
+            onBackClick = {},
+            onStartLesson = {},
+            onResumeLesson = { _, _ -> },
+            onRetry = {}
         )
     }
 }
 
-@Preview(showBackground = true, name = "2. Lesson Details - Null ID")
+@Preview(showBackground = true, name = "2. Full Screen - In Progress")
 @Composable
-fun LessonDetailsScreenNullPreview() {
+fun LessonDetailsContentInProgressPreview() {
     MaterialTheme {
-        LessonDetailsScreen(
-            lessonId = null, // Simulating a case where the ID is missing
-            onBackClick = { /* Preview: Do nothing */ }
+        LessonDetailsContent(
+            state = UiState.Success(mockInProgressLesson),
+            onBackClick = {},
+            onStartLesson = {},
+            onResumeLesson = { _, _ -> },
+            onRetry = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "3. Full Screen - Loading")
+@Composable
+fun LessonDetailsContentLoadingPreview() {
+    MaterialTheme {
+        LessonDetailsContent(
+            state = UiState.Loading,
+            onBackClick = {},
+            onStartLesson = {},
+            onResumeLesson = { _, _ -> },
+            onRetry = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "4. Full Screen - Error")
+@Composable
+fun LessonDetailsContentErrorPreview() {
+    MaterialTheme {
+        LessonDetailsContent(
+            state = UiState.Error("Failed to fetch lesson data. Please check your internet connection."),
+            onBackClick = {},
+            onStartLesson = {},
+            onResumeLesson = { _, _ -> },
+            onRetry = {}
         )
     }
 }

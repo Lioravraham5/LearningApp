@@ -115,7 +115,10 @@ fun HomeScreenContent(
     }
 }
 
-// Preview using the Stateless component with mock data
+// ==========================================
+// PREVIEW
+// ==========================================
+
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {

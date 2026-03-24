@@ -21,6 +21,6 @@ abstract class LessonDetailsModule {
      */
     @Binds
     abstract fun bindLessonDetailsRepository(
-        impl: MockLessonDetailsRepositoryImpl
+        impl: RemoteLessonDetailsRepositoryImpl
     ): LessonDetailsRepository
 }

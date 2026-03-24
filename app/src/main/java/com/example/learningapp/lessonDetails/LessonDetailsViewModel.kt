@@ -27,6 +27,13 @@ class LessonDetailsViewModel @Inject constructor(
 
     private val TAG = "LessonDetailsViewModel"
 
+    // BEST PRACTICE: Fail-fast validation. Ensures 'lessonId' is non-null
+    // and crashes immediately if the required navigation argument is missing.
+    // The follow message will present with the error in the logs.
+    private val lessonId: String = checkNotNull(savedStateHandle["lessonId"]) {
+        "CRITICAL ERROR: lessonId is missing from navigation arguments!"
+    }
+
     // Internal mutable state holding the current status of the screen.
     // We start in the Idle state before the fetching begins.
     private val _uiState = MutableStateFlow<UiState<LessonDetails>>(UiState.Idle)
@@ -36,45 +43,24 @@ class LessonDetailsViewModel @Inject constructor(
     val uiState: StateFlow<UiState<LessonDetails>> = _uiState.asStateFlow()
 
     init {
-        // Retrieve the "lessonId" exactly as it was named in the NavGraph arguments
-        // in Step 1: navArgument("lessonId") { type = NavType.StringType }
-        val lessonId = savedStateHandle.get<String>("lessonId")
-
-        if (lessonId != null) {
-            loadLessonDetails(lessonId)
-        } else {
-            // Failsafe: If for some reason the navigation was triggered without an ID,
-            // we immediately notify the UI to show an error, preventing a crash or blank screen.
-            _uiState.value = UiState.Error("Lesson ID is missing.")
-            Log.d(TAG, "Initialization failed: Lesson ID is null.")
-        }
+        loadLessonDetails()
     }
 
     /**
-     * Fetches the lesson details from the repository and updates the UI state.
-     * @param lessonId The unique ID retrieved from the SavedStateHandle.
+     * Fetches the lesson details.
+     * Uses the immutable 'lessonId' initialized above.
      */
-    private fun loadLessonDetails(lessonId: String) {
-        // BEST PRACTICE: Use viewModelScope to launch coroutines.
-        // This ensures the network request is automatically canceled if the user
-        // navigates away from the screen before the request finishes, preventing memory leaks.
+    fun loadLessonDetails() {
         viewModelScope.launch {
-            // 1. Notify the UI that we are starting the network call so it can show a spinner.
             _uiState.value = UiState.Loading
 
             try {
-                // 2. Fetch the data from the repository (suspends until data is ready).
+                // Now we simply use the immutable lessonId
                 val details = repository.getLessonDetails(lessonId)
-
                 Log.d(TAG, "Successfully loaded details for lessonId: $lessonId")
-
-                // 3. On success, update the state with the fetched data.
                 _uiState.value = UiState.Success(details)
-
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load details for lessonId: $lessonId", e)
-
-                // 4. On failure, update the state with the error message so the UI can show a fallback.
                 _uiState.value = UiState.Error(e.localizedMessage ?: "An unexpected error occurred.")
             }
         }

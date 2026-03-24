@@ -32,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.categoryDetails.components.CategoryDetailsHeader
 import com.example.learningapp.categoryDetails.components.LessonItem
 import com.example.learningapp.core.UiState
+import com.example.learningapp.ui.components.ErrorStateComponent
 
 /**
  * STATEFUL ENTRY POINT:
@@ -49,7 +50,10 @@ fun CategoryDetailsScreen(
     CategoryDetailsContent(
         state = uiState,
         onBackClick = onBackClick,
-        onNavigateToLesson = onNavigateToLesson
+        onNavigateToLesson = onNavigateToLesson,
+        onRetry = {
+            viewModel.loadCategoryDetails()
+        }
     )
 }
 
@@ -64,6 +68,7 @@ fun CategoryDetailsContent(
     state: UiState<CategoryDetails>,
     onBackClick: () -> Unit,
     onNavigateToLesson: (String) -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Scaffold provides the modern Material 3 structure (TopBar + Content Area)
@@ -99,10 +104,9 @@ fun CategoryDetailsContent(
                     CircularProgressIndicator()
                 }
                 is UiState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyLarge
+                    ErrorStateComponent(
+                        message = state.message,
+                        onRetry = onRetry
                     )
                 }
                 is UiState.Success -> {
@@ -149,6 +153,10 @@ fun CategoryDetailsContent(
     }
 }
 
+// ==========================================
+// PREVIEW
+// ==========================================
+
 // --- Mock Data for Previews ---
 private val mockLessonsPreview = listOf(
     Lesson(
@@ -188,7 +196,8 @@ fun CategoryDetailsContentSuccessPreview() {
             // Passing the Success state with our mock data
             state = UiState.Success(mockCategoryDetailsPreview),
             onBackClick = { /* Preview: Do nothing */ },
-            onNavigateToLesson = { /* Preview: Do nothing */ }
+            onNavigateToLesson = { /* Preview: Do nothing */ },
+            onRetry = { /* Preview: Do nothing */ }
         )
     }
 }
@@ -201,7 +210,8 @@ fun CategoryDetailsContentLoadingPreview() {
             // Passing the Loading state
             state = UiState.Loading,
             onBackClick = { /* Preview: Do nothing */ },
-            onNavigateToLesson = { /* Preview: Do nothing */ }
+            onNavigateToLesson = { /* Preview: Do nothing */ },
+            onRetry = { /* Preview: Do nothing */ }
         )
     }
 }
@@ -214,7 +224,8 @@ fun CategoryDetailsContentErrorPreview() {
             // Passing the Error state with a mock message
             state = UiState.Error("Failed to load category. Please check your internet connection and try again."),
             onBackClick = { /* Preview: Do nothing */ },
-            onNavigateToLesson = { /* Preview: Do nothing */ }
+            onNavigateToLesson = { /* Preview: Do nothing */ },
+            onRetry = { /* Preview: Do nothing */ }
         )
     }
 }

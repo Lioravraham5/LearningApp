@@ -25,6 +25,13 @@ class CategoryDetailsViewModel @Inject constructor(
 
     val TAG = "CategoryDetailsViewModel"
 
+    // BEST PRACTICE: Fail-fast validation. Ensures 'categoryId' is non-null
+    // and crashes immediately if the required navigation argument is missing.
+    // The follow message will present with the error in the logs.
+    private val categoryId: String = checkNotNull(savedStateHandle["categoryId"]) {
+        "CRITICAL ERROR: 'categoryId' is missing from navigation arguments!"
+    }
+
     // Internal mutable state holding the current status of the screen
     private val _uiState = MutableStateFlow<UiState<CategoryDetails>>(UiState.Idle)
 
@@ -32,35 +39,27 @@ class CategoryDetailsViewModel @Inject constructor(
     val uiState: StateFlow<UiState<CategoryDetails>> = _uiState.asStateFlow()
 
     init {
-        // Retrieve the "categoryId" exactly as it was named in the NavGraph arguments
-        val categoryId = savedStateHandle.get<String>("categoryId")
-
-        if (categoryId != null) {
-            loadCategoryDetails(categoryId)
-        } else {
-            // Failsafe in case the navigation was triggered incorrectly
-            _uiState.value = UiState.Error("Category ID is missing.")
-        }
+        loadCategoryDetails()
     }
 
     /**
      * Fetches the category details from the repository and updates the UI state accordingly.
-     * @param categoryId The ID retrieved from the SavedStateHandle.
+     * Made public so the UI can trigger it again (Retry) if a network error occurs.
      */
-    private fun loadCategoryDetails(categoryId: String) {
+    fun loadCategoryDetails() {
         viewModelScope.launch {
             // 1. Notify the UI that we are loading data
             _uiState.value = UiState.Loading
 
             try {
-                // 2. Fetch the data from the repository (this simulates a network call)
+                // 2. Fetch the data using the immutable categoryId
                 val details = repository.getCategoryDetails(categoryId)
 
                 Log.d(TAG, "Successfully loaded details for categoryId: $categoryId. CategoryDetails: $details")
                 // 3. On success, update the state with the fetched data
                 _uiState.value = UiState.Success(details)
             } catch (e: Exception) {
-                Log.d(TAG, "Failed to load details for categoryId: $categoryId, Error: ${e.message}",)
+                Log.d(TAG, "Failed to load details for categoryId: $categoryId, Error: ${e.message}")
                 // 4. On failure, update the state with the error message
                 _uiState.value = UiState.Error(e.localizedMessage ?: "An unexpected error occurred.")
             }

@@ -131,10 +131,12 @@ fun AppNavGraph(
                 val lessonId = navBackStackEntry.arguments?.getString("lessonId")
 
                 LessonDetailsScreen(
-                    lessonId = lessonId,
                     onBackClick = {
                         // Standard back navigation
                         navController.popBackStack()
+                    },
+                    onNavigateToLessonPlayer = { lessonId, startIndex ->
+                        // TODO: We will add the actual navigation logic here next!
                     }
                 )
             }

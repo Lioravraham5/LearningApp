@@ -21,19 +21,22 @@ class MockLessonDetailsRepositoryImpl @Inject constructor() : LessonDetailsRepos
                 id = "l1_1",
                 title = "Introduction to Interviews",
                 description = "Learn the basic vocabulary and etiquette for starting a professional job interview in English.",
-                sentencesCount = 15
+                sentencesCount = 15,
+                completedSentences = 15
             )
             "l1_2" -> LessonDetails(
                 id = "l1_2",
                 title = "Answering 'Tell me about yourself'",
                 description = "Master the perfect elevator pitch to introduce yourself confidently to recruiters.",
-                sentencesCount = 20
+                sentencesCount = 20,
+                completedSentences = 8
             )
             "l2_1" -> LessonDetails(
                 id = "l2_1",
                 title = "At the Airport",
                 description = "Essential phrases for check-in, security, and finding your boarding gate.",
-                sentencesCount = 12
+                sentencesCount = 12,
+                completedSentences = 0
             )
             // Simulating a 404 Not Found error from a server for any other ID
             else -> throw IllegalArgumentException("Lesson with ID $lessonId not found on the mock server.")
