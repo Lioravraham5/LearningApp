@@ -13,6 +13,7 @@ import androidx.navigation.navigation
 import com.example.learningapp.categoryDetails.CategoryDetailsScreen
 import com.example.learningapp.home.HomeScreen
 import com.example.learningapp.lessonDetails.LessonDetailsScreen
+import com.example.learningapp.lessonProgress.LessonProgressScreen
 import com.example.learningapp.profile.ProfileScreen
 import com.example.learningapp.progress.ProgressScreen
 
@@ -135,11 +136,36 @@ fun AppNavGraph(
                         // Standard back navigation
                         navController.popBackStack()
                     },
-                    onNavigateToLessonPlayer = { lessonId, startIndex ->
-                        // TODO: We will add the actual navigation logic here next!
+                    onNavigateToLessonPlayer = { id, startIndex ->
+                        // UPDATED: Now we actually trigger the navigation to our new screen!
+                        // (If you want to support jumping to a specific sentence index later,
+                        // you can pass startIndex in the route as well).
+                        navController.navigate(MainScreen.LessonProgress.createRoute(id))
                     }
                 )
             }
+
+            composable(
+                route = MainScreen.LessonProgress.route,
+                arguments = listOf(
+                    navArgument("lessonId") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { navBackStackEntry ->
+                // BEST PRACTICE: Safely extract the lessonId from the navigation arguments
+                val lessonId = navBackStackEntry.arguments?.getString("lessonId") ?: return@composable
+
+                LessonProgressScreen(
+                    lessonId = lessonId,
+                    onExitLesson = {
+                        // When the user clicks the 'X' button and confirms exit,
+                        // we simply pop the back stack to return to the Lesson Details screen.
+                        navController.popBackStack()
+                    }
+                )
+            }
+
         }
     }
 }
