@@ -1,5 +1,13 @@
 package com.example.learningapp.lessonProgress
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,16 +39,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.lessonProgress.components.AvatarSpeechSection
 import com.example.learningapp.lessonProgress.components.LessonControlBar
+import com.example.learningapp.lessonProgress.components.PermissionRationaleDialog
+import com.example.learningapp.lessonProgress.components.PermissionSettingsDialog
 import com.example.learningapp.lessonProgress.models.ASRCombinedOut
 import com.example.learningapp.lessonProgress.models.LLMOut
 import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.ui.components.ErrorStateComponent
+import android.provider.Settings
 
 @Composable
 fun LessonProgressScreen(
@@ -49,6 +63,11 @@ fun LessonProgressScreen(
     onExitLesson: () -> Unit // Callback to navigate back to LessonDetails
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = context as? Activity
+    // State for controlling our custom dialogs
+    var showRationaleDialog by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
 
     // When the screen first appears, trigger the data fetch
     LaunchedEffect(lessonId) {
@@ -56,6 +75,84 @@ fun LessonProgressScreen(
         if (uiState.sentences.isEmpty() && uiState.step == LessonStep.LOADING_SENTENCES) {
             viewModel.loadLesson(lessonId)
         }
+    }
+
+    // Create the Launcher to handle the result of the permission request
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // The user granted permission from the system dialog.
+            viewModel.startRecording()
+        } else {
+            // The user did not grant permission.
+            val shouldShowRationale = activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    it,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            } ?: false
+
+            if (!shouldShowRationale) {
+                // The permission is permanently denied.
+                showSettingsDialog = true
+            }
+        }
+    }
+
+    // Intercept the record click action
+    val onRecordClickIntercepted = {
+        // Check if we ALREADY have the permission
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (hasPermission) {
+            // Scenario 1: User already have permission
+            viewModel.startRecording()
+        } else {
+            // User don't have permission.
+            // Check if we need to show our custom Rationale Dialog before launching the system request
+            val shouldShowRationale = activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    it,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            } ?: false
+
+            if (shouldShowRationale) {
+                // Scenario 2: Soft Denial earlier. Show our custom explanation.
+                showRationaleDialog = true
+            } else {
+                // Scenario 3: First time asking (or returning from settings). Launch system dialog.
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
+
+    if (showRationaleDialog) {
+        PermissionRationaleDialog(
+            onDismiss = {
+                showRationaleDialog = false
+            },
+            onConfirm = {
+                showRationaleDialog = false
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        )
+    }
+
+    if (showSettingsDialog) {
+        PermissionSettingsDialog(
+            onDismiss = {
+                showSettingsDialog = false
+            },
+            onOpenSettings = {
+                showSettingsDialog = false
+                context.openAppSettings()
+            }
+        )
     }
 
     // BEST PRACTICE: Pass down all specific ViewModel actions as individual lambdas.
@@ -66,7 +163,7 @@ fun LessonProgressScreen(
         onRetryLoad = { viewModel.loadLesson(lessonId) },
         onPlayClick = { viewModel.playCurrentSentence() },
         onReplayClick = { viewModel.playCurrentSentence() },
-        onStartRecordingClick = { viewModel.startRecording() },
+        onStartRecordingClick = onRecordClickIntercepted,
         onStopRecordingClick = { viewModel.stopRecordingAndAnalyze() },
         onNextClick = { viewModel.moveToNextSentence() },
         getAmplitude = { viewModel.getRecordingAmplitude() }
@@ -227,9 +324,20 @@ fun LessonProgressContent(
     }
 }
 
+/**
+ * Extension function to seamlessly open the app's settings screen.
+ */
+fun Context.openAppSettings() {
+    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = Uri.fromParts("package", packageName, null)
+        startActivity(this)
+    }
+}
+
 // ==========================================
 // PREVIEW
 // ==========================================
+
 // Dummy empty callbacks to keep the preview code clean
 private val emptyAction: () -> Unit = {}
 private val emptyAmplitude: () -> Int = { 0 }
