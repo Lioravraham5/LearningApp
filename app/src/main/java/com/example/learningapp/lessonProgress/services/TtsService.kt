@@ -1,5 +1,6 @@
 package com.example.learningapp.lessonProgress.services
 
+import com.example.learningapp.avatar.AvatarType
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -21,6 +22,11 @@ interface TtsService {
      * Immediately stops any ongoing speech.
      */
     fun stopSpeaking()
+
+    /**
+     * Sets the avatar's voice according to the provided type.
+     */
+    fun setAvatarVoice(avatarType: AvatarType)
 
     /**
      * Cleans up resources. Must be called when the Service is no longer needed

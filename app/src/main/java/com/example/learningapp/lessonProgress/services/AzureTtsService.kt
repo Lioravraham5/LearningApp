@@ -2,6 +2,7 @@ package com.example.learningapp.lessonProgress.services
 
 import android.util.Log
 import com.example.learningapp.BuildConfig
+import com.example.learningapp.avatar.AvatarType
 import com.microsoft.cognitiveservices.speech.SpeechConfig
 import com.microsoft.cognitiveservices.speech.SpeechSynthesisOutputFormat
 import com.microsoft.cognitiveservices.speech.SpeechSynthesizer
@@ -24,6 +25,7 @@ class AzureTtsService : TtsService {
     override val currentVisemeId: StateFlow<Int> = _currentVisemeId.asStateFlow()
     private var speechConfig: SpeechConfig? = null
     private var synthesizer: SpeechSynthesizer? = null
+    private var currentVoiceName: String = "en-US-Andrew:DragonHDLatestNeural"
 
     /**
      * Helper function to ensure Azure resources are initialized and alive.
@@ -35,7 +37,7 @@ class AzureTtsService : TtsService {
                 BuildConfig.AZURE_SPEECH_REGION
             ).apply {
                 // Set the specific voice and output format
-                speechSynthesisVoiceName = "en-US-Andrew:DragonHDLatestNeural"
+                speechSynthesisVoiceName = currentVoiceName
                 setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm)
             }
         }
@@ -81,6 +83,22 @@ class AzureTtsService : TtsService {
             _currentVisemeId.value = 0
         } catch (e: Exception) {
             Log.e(TAG, "Failed to stop speech", e)
+        }
+    }
+
+    override fun setAvatarVoice(avatarType: AvatarType) {
+        val newVoiceName = when (avatarType) {
+            AvatarType.MALE -> "en-US-Andrew:DragonHDLatestNeural"
+            AvatarType.FEMALE -> "en-us-Aria:DragonHDLatestNeural"
+        }
+
+        // Only re-initialize if the voice actually changed
+        if (currentVoiceName != newVoiceName) {
+            currentVoiceName = newVoiceName
+            Log.d(TAG, "Voice changed to $currentVoiceName. Forcing re-initialization.")
+
+            // By shutting down, we safely clear the old instances.
+            shutdown()
         }
     }
 

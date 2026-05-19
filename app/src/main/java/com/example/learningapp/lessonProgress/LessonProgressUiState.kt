@@ -1,5 +1,6 @@
 package com.example.learningapp.lessonProgress
 
+import com.example.learningapp.avatar.AvatarType
 import com.example.learningapp.lessonProgress.models.ASRCombinedOut
 import com.example.learningapp.lessonProgress.models.Sentence
 
@@ -31,7 +32,9 @@ data class LessonProgressState(
     // The evaluation result received from the server for the CURRENT sentence
     val currentEvaluation: ASRCombinedOut? = null,
     // General error message for network/hardware failures
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    // Avatar type (male/female)
+    val avatarType: AvatarType = AvatarType.MALE
 ) {
 
     /**

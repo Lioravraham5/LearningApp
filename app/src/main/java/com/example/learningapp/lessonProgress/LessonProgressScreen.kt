@@ -55,6 +55,8 @@ import com.example.learningapp.lessonProgress.models.LLMOut
 import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.ui.components.ErrorStateComponent
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
+import com.example.learningapp.lessonProgress.components.ExitLessonDialog
 
 @Composable
 fun LessonProgressScreen(
@@ -185,8 +187,13 @@ fun LessonProgressContent(
     getAmplitude: () -> Int,
     modifier: Modifier = Modifier
 ) {
-    // State to control the visibility of the "Are you sure you want to exit?" dialog
+    // State to control the visibility of the exit Lesson dialog
     var showExitConfirmation by remember { mutableStateOf(false) }
+
+    // Handle the back button press to show the exit Lesson dialog
+    BackHandler(enabled = true) {
+        showExitConfirmation = true
+    }
 
     // Animate the progress bar fill smoothly
     val animatedProgress by animateFloatAsState(
@@ -274,8 +281,8 @@ fun LessonProgressContent(
                             AvatarSpeechSection(
                                 targetSentence = state.currentSentence?.text,
                                 evaluation = state.currentEvaluation,
-                                visemeId = state.currentVisemeId
-                                // avatarType = AvatarType.MALE // Assuming it defaults to MALE
+                                visemeId = state.currentVisemeId,
+                                avatarType = state.avatarType
                             )
                         }
 
@@ -301,24 +308,11 @@ fun LessonProgressContent(
     // EXIT CONFIRMATION DIALOG
     // ==========================================
     if (showExitConfirmation) {
-        AlertDialog(
-            onDismissRequest = { showExitConfirmation = false },
-            title = { Text(text = "Exit Lesson?") },
-            text = { Text(text = "Your progress in this current session will be lost.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showExitConfirmation = false
-                        onExitLesson() // Actually trigger the exit
-                    }
-                ) {
-                    Text("Exit", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showExitConfirmation = false }) {
-                    Text("Cancel")
-                }
+        ExitLessonDialog(
+            onDismiss = { showExitConfirmation = false },
+            onConfirmExit = {
+                showExitConfirmation = false
+                onExitLesson() // Actually trigger the exit
             }
         )
     }

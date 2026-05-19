@@ -2,6 +2,7 @@ package com.example.learningapp.lessonProgress
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.learningapp.core.UserSettingsRepository
 import com.example.learningapp.lessonProgress.services.AudioRecorderService
 import com.example.learningapp.lessonProgress.services.TtsService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,18 +21,26 @@ import javax.inject.Inject
 class LessonProgressViewModel @Inject constructor(
     private val repository: LessonProgressRepository,
     private val ttsService: TtsService,
-    private val audioRecorderService: AudioRecorderService
+    private val audioRecorderService: AudioRecorderService,
+    private val userSettingsRepository: UserSettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LessonProgressState())
     val uiState: StateFlow<LessonProgressState> = _uiState.asStateFlow()
 
     init {
-        // BEST PRACTICE: Automatically listen to Avatar's mouth movements (visemes)
-        // and push them to the UI state. This runs continuously in the background.
+        // Listen to Avatar's mouth movements (visemes) and push them to the UI state.
         viewModelScope.launch {
             ttsService.currentVisemeId.collect { visemeId ->
                 _uiState.update { it.copy(currentVisemeId = visemeId) }
+            }
+        }
+
+        // Listen to user avatar type changes and push them to the UI state.
+        viewModelScope.launch {
+            userSettingsRepository.avatarTypeFlow.collect { savedAvatarType ->
+                _uiState.update { it.copy(avatarType = savedAvatarType) }
+                ttsService.setAvatarVoice(savedAvatarType)
             }
         }
     }
