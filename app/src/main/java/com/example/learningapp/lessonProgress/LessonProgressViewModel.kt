@@ -1,5 +1,6 @@
 package com.example.learningapp.lessonProgress
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.learningapp.core.UserSettingsRepository
@@ -24,6 +25,8 @@ class LessonProgressViewModel @Inject constructor(
     private val audioRecorderService: AudioRecorderService,
     private val userSettingsRepository: UserSettingsRepository
 ) : ViewModel() {
+
+    private val TAG = "LessonProgressViewModel"
 
     private val _uiState = MutableStateFlow(LessonProgressState())
     val uiState: StateFlow<LessonProgressState> = _uiState.asStateFlow()
@@ -183,12 +186,40 @@ class LessonProgressViewModel @Inject constructor(
     }
 
     /**
-     * BEST PRACTICE: Always release hardware resources when the ViewModel dies
-     * (e.g., user navigates back to the home screen).
+     * Release hardware resources when the ViewModel dies.
      */
     override fun onCleared() {
         ttsService.shutdown()
         audioRecorderService.stopRecording() // Just in case it was left open
         super.onCleared()
+    }
+
+    /**
+     * Handle app going to the background: Stops any active hardware usage (TTS or Mic) and resets the state safely.
+     */
+    fun onAppBackgrounded() {
+        val currentState = _uiState.value
+        Log.w(TAG, "[LIFECYCLE] onAppBackgrounded triggered! Current UI Step: ${currentState.step}")
+        // 1. If the avatar is speaking, stop the TTS engine completely
+        if (currentState.step == LessonStep.AVATAR_SPEAKING || currentState.step == LessonStep.SHOWING_FEEDBACK) {
+            Log.d(TAG, "[LIFECYCLE] Avatar was speaking. Calling ttsService.shutdown()")
+            ttsService.shutdown()
+            if (currentState.step == LessonStep.AVATAR_SPEAKING) {
+                Log.d(TAG, "[LIFECYCLE] Resetting state to READY_TO_START")
+                _uiState.update { it.copy(step = LessonStep.READY_TO_START) }
+            }
+        }
+
+        // 2. If the user was recording, stop the microphone to release the resource
+        if (currentState.step == LessonStep.RECORDING) {
+            Log.d(TAG, "[LIFECYCLE] User was recording. Stopping mic.")
+            audioRecorderService.stopRecording()
+            _uiState.update {
+                it.copy(
+                    step = LessonStep.WAITING_FOR_RECORDING,
+                    errorMessage = "Recording paused."
+                )
+            }
+        }
     }
 }

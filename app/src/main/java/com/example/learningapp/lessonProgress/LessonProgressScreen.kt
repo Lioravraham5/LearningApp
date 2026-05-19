@@ -56,6 +56,10 @@ import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.ui.components.ErrorStateComponent
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.learningapp.lessonProgress.components.ExitLessonDialog
 
 @Composable
@@ -67,9 +71,28 @@ fun LessonProgressScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as? Activity
+    val lifecycleOwner = LocalLifecycleOwner.current
     // State for controlling our custom dialogs
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+
+    // Listen to the system's lifecycle events for background handling
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            // ON_PAUSE triggers exactly when the app goes to the background
+            // or the screen is no longer the active foreground window.
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                viewModel.onAppBackgrounded()
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // Remove the observer when the composable leaves the composition
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     // When the screen first appears, trigger the data fetch
     LaunchedEffect(lessonId) {
