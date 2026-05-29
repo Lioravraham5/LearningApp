@@ -112,9 +112,10 @@ class LessonProgressViewModel @Inject constructor(
      */
     fun stopRecordingAndAnalyze() {
         val audioFile = audioRecorderService.stopRecording()
-        val targetSentenceText = _uiState.value.currentSentence?.text
+        // SHIFT: We now extract the ID instead of the text
+        val currentSentenceId = _uiState.value.currentSentence?.id
 
-        if (audioFile == null || targetSentenceText == null) {
+        if (audioFile == null || currentSentenceId == null) {
             _uiState.update {
                 it.copy(errorMessage = "Recording failed.", step = LessonStep.WAITING_FOR_RECORDING)
             }
@@ -125,7 +126,8 @@ class LessonProgressViewModel @Inject constructor(
             // Change state to show a loading spinner / analyzing animation
             _uiState.update { it.copy(step = LessonStep.ANALYZING) }
 
-            val result = repository.evaluateSpeech(audioFile, targetSentenceText)
+            // SHIFT: Passing the ID to the repository
+            val result = repository.evaluateSpeech(audioFile, currentSentenceId)
 
             result.onSuccess { evaluation ->
                 // Move to Feedback step and store the evaluation data
@@ -137,8 +139,8 @@ class LessonProgressViewModel @Inject constructor(
                 }
 
                 // Step E: Avatar reads the feedback dynamically!
-                // We combine the LLM's feedback array into a single spoken string
-                val feedbackSpokenText = evaluation.llm.feedback.joinToString(separator = " ")
+                // SHIFT: We simply pass the feedbackText string generated directly by the server
+                val feedbackSpokenText = evaluation.feedbackText
                 ttsService.speakText(feedbackSpokenText)
 
             }.onFailure { error ->

@@ -30,13 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.Icons
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -50,8 +47,6 @@ import com.example.learningapp.lessonProgress.components.AvatarSpeechSection
 import com.example.learningapp.lessonProgress.components.LessonControlBar
 import com.example.learningapp.lessonProgress.components.PermissionRationaleDialog
 import com.example.learningapp.lessonProgress.components.PermissionSettingsDialog
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
-import com.example.learningapp.lessonProgress.models.LLMOut
 import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.ui.components.ErrorStateComponent
 import android.provider.Settings
@@ -61,6 +56,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.learningapp.lessonProgress.components.ExitLessonDialog
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
+import com.example.learningapp.lessonProgress.models.PronunciationScores
 
 @Composable
 fun LessonProgressScreen(
@@ -312,7 +309,7 @@ fun LessonProgressContent(
                         // --- STEP 3 & 4: THE DYNAMIC CONTROL BAR ---
                         LessonControlBar(
                             step = state.step,
-                            score = state.currentEvaluation?.llm?.score,
+                            score = state.currentEvaluation?.finalScore,
                             onPlayClick = onPlayClick,
                             onReplayClick = onReplayClick,
                             onStartRecordingClick = onStartRecordingClick,
@@ -365,6 +362,11 @@ private val mockSentences = listOf(
     Sentence(id = "2", text = "I love developing apps.", orderIndex = 1)
 )
 
+// Dummy Azure Pronunciation Scores for previews
+private val dummyScores = PronunciationScores(
+    accuracy = 85f, fluency = 90f, completeness = 100f, prosody = 88f, pronunciation = 87f
+)
+
 @Preview(name = "1. Loading State", showBackground = true)
 @Composable
 fun Preview_LessonLoading() {
@@ -404,9 +406,9 @@ fun Preview_LessonWaitingForRecording() {
         LessonProgressContent(
             state = LessonProgressState(
                 step = LessonStep.WAITING_FOR_RECORDING,
-                sentences = mockSentences, // משתמש באותה רשימה שיצרנו בשאר ה-Previews
+                sentences = mockSentences,
                 currentSentenceIndex = 0,
-                currentVisemeId = 0 // פה סגור (ממתין למשתמש שידבר)
+                currentVisemeId = 0
             ),
             onExitLesson = emptyAction, onRetryLoad = emptyAction,
             onPlayClick = emptyAction, onReplayClick = emptyAction,
@@ -439,19 +441,21 @@ fun Preview_LessonRecording() {
 @Preview(name = "5. Feedback - With Mistakes", showBackground = true)
 @Composable
 fun Preview_LessonFeedback_Mistakes() {
-    // Mocking an LLM output where the user missed the word "software"
-    val mockEvaluation = ASRCombinedOut(
-        transcript = "I am a engineer.",
-        llm = LLMOut(
-            isCorrect = false,
-            correctedText = "I am a software engineer.",
-            missingWords = listOf("software"),
-            extraWords = emptyList(),
-            substitutions = emptyList(),
-            feedback = listOf("Almost perfect! Don't forget the word 'software'."),
-            score = 80,
-            detectedLanguage = "en"
-        )
+    // Mocking an Azure output where the user missed the word "software"
+    val mockEvaluation = AssessmentResponse(
+        sentenceId = "1",
+        recognizedText = "I am a engineer.",
+        targetSentence = "I am a software engineer.",
+        scores = dummyScores.copy(accuracy = 70f), // Lower accuracy
+        words = emptyList(),
+        finalScore = 80,
+        isPassed = true, // Passed, but with mistakes
+        missingWords = listOf("software"),
+        extraWords = emptyList(),
+        substitutions = emptyList(),
+        mispronouncedWords = emptyList(),
+        feedbackPoints = emptyList(),
+        feedbackText = "Almost perfect! Don't forget the word 'software'."
     )
 
     MaterialTheme {
@@ -473,18 +477,20 @@ fun Preview_LessonFeedback_Mistakes() {
 @Preview(name = "6. Feedback - Perfect Score", showBackground = true)
 @Composable
 fun Preview_LessonFeedback_Perfect() {
-    val perfectEvaluation = ASRCombinedOut(
-        transcript = "I am a software engineer.",
-        llm = LLMOut(
-            isCorrect = true,
-            correctedText = "I am a software engineer.",
-            missingWords = emptyList(),
-            extraWords = emptyList(),
-            substitutions = emptyList(),
-            feedback = listOf("Excellent pronunciation!"),
-            score = 100,
-            detectedLanguage = "en"
-        )
+    val perfectEvaluation = AssessmentResponse(
+        sentenceId = "1",
+        recognizedText = "I am a software engineer.",
+        targetSentence = "I am a software engineer.",
+        scores = dummyScores,
+        words = emptyList(),
+        finalScore = 100,
+        isPassed = true,
+        missingWords = emptyList(),
+        extraWords = emptyList(),
+        substitutions = emptyList(),
+        mispronouncedWords = emptyList(),
+        feedbackPoints = emptyList(),
+        feedbackText = "Excellent pronunciation!"
     )
 
     MaterialTheme {

@@ -1,7 +1,7 @@
 package com.example.learningapp.lessonProgress
 
 import com.example.learningapp.avatar.AvatarType
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
 
 /**
@@ -14,7 +14,7 @@ enum class LessonStep {
     AVATAR_SPEAKING,      // Avatar is reading the sentence (TTS is active)
     WAITING_FOR_RECORDING,// Waiting for the user to tap the mic to speak
     RECORDING,            // The microphone is open and recording the user
-    ANALYZING,            // Audio sent to FastAPI, showing a loader waiting for LLMOut
+    ANALYZING,            // Audio sent to FastAPI, showing a loader waiting for AssessmentResponse
     SHOWING_FEEDBACK,     // Displaying the score and highlighting wrong words
     LESSON_COMPLETED      // All sentences are done, showing the final summary
 }
@@ -30,7 +30,7 @@ data class LessonProgressState(
     // Azure TTS Viseme ID for the Avatar's mouth
     val currentVisemeId: Int = 0,
     // The evaluation result received from the server for the CURRENT sentence
-    val currentEvaluation: ASRCombinedOut? = null,
+    val currentEvaluation: AssessmentResponse? = null,
     // General error message for network/hardware failures
     val errorMessage: String? = null,
     // Avatar type (male/female)

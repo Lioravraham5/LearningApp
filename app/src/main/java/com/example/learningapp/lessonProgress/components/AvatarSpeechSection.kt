@@ -19,8 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.learningapp.avatar.Avatar
 import com.example.learningapp.avatar.AvatarType
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
-import com.example.learningapp.lessonProgress.models.LLMOut
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
+import com.example.learningapp.lessonProgress.models.MispronouncedWord
+import com.example.learningapp.lessonProgress.models.PronunciationScores
 import com.example.learningapp.lessonProgress.models.Substitution
 
 /**
@@ -31,7 +32,7 @@ import com.example.learningapp.lessonProgress.models.Substitution
 fun AvatarSpeechSection(
     modifier: Modifier = Modifier,
     targetSentence: String?,
-    evaluation: ASRCombinedOut?,
+    evaluation: AssessmentResponse?, // שונה מ-ASRCombinedOut?
     visemeId: Int,
     avatarType: AvatarType = AvatarType.MALE // Assuming AvatarType is accessible here
 ) {
@@ -74,37 +75,58 @@ fun AvatarSpeechSection(
 
 private const val TARGET_SENTENCE = "I would like a cup of coffee, please."
 
-private val mockPerfectEvaluation = ASRCombinedOut(
-    transcript = "I would like a cup of coffee please",
-    llm = LLMOut(
-        isCorrect = true,
-        correctedText = "I would like a cup of coffee please",
-        missingWords = emptyList(),
-        extraWords = emptyList(),
-        substitutions = emptyList(),
-        feedback = listOf("Perfect pronunciation!"),
-        score = 100,
-        detectedLanguage = "en"
-    )
+// 1. Mock for a flawless pronunciation
+private val mockPerfectEvaluation = AssessmentResponse(
+    sentenceId = "test_123",
+    recognizedText = "I would like a cup of coffee please",
+    targetSentence = TARGET_SENTENCE,
+    scores = PronunciationScores(
+        accuracy = 100f,
+        fluency = 100f,
+        completeness = 100f,
+        prosody = 100f,
+        pronunciation = 100f
+    ),
+    words = emptyList(),
+    finalScore = 100,
+    isPassed = true,
+    missingWords = emptyList(),
+    extraWords = emptyList(),
+    substitutions = emptyList(),
+    mispronouncedWords = emptyList(),
+    feedbackPoints = emptyList(),
+    feedbackText = "Excellent pronunciation! Great job."
 )
 
-private val mockErrorEvaluation = ASRCombinedOut(
-    transcript = "I would like a of tea please",
-    llm = LLMOut(
-        isCorrect = false,
-        correctedText = "I would like a cup of coffee please",
-        missingWords = listOf("cup"), // The user missed this word entirely
-        extraWords = emptyList(),
-        substitutions = listOf(
-            Substitution(
-                expected = "coffee",
-                heard = "tea"
-            ) // The user said "tea" instead of "coffee"
-        ),
-        feedback = listOf("You missed the word 'cup' and said 'tea' instead of 'coffee'."),
-        score = 75,
-        detectedLanguage = "en"
-    )
+// 2. Mock for mixed errors (Hard and Soft) to test the visual hierarchy
+private val mockMistakesEvaluation = AssessmentResponse(
+    sentenceId = "test_124",
+    recognizedText = "I would like a of tea pleeez",
+    targetSentence = TARGET_SENTENCE,
+    scores = PronunciationScores(
+        accuracy = 60f,
+        fluency = 75f,
+        completeness = 80f,
+        prosody = 70f,
+        pronunciation = 65f
+    ),
+    words = emptyList(),
+    finalScore = 65,
+    isPassed = false,
+    missingWords = listOf("cup"), // Hard Error -> RED
+    extraWords = emptyList(),
+    substitutions = listOf(
+        Substitution(expected = "coffee", heard = "tea") // Hard Error -> RED
+    ),
+    mispronouncedWords = listOf(
+        MispronouncedWord(
+            word = "please", // Soft Error -> ORANGE
+            accuracyScore = 45f,
+            weakPhonemes = listOf("z")
+        )
+    ),
+    feedbackPoints = emptyList(),
+    feedbackText = "You missed the word 'cup', said 'tea' instead of 'coffee', and work on your pronunciation of 'please'."
 )
 
 @Preview(showBackground = true, name = "1. Avatar Section - Waiting (No Feedback)")
@@ -144,7 +166,7 @@ fun AvatarSpeechSectionMistakesPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             AvatarSpeechSection(
                 targetSentence = TARGET_SENTENCE,
-                evaluation = mockErrorEvaluation,
+                evaluation = mockMistakesEvaluation, // Using the new structured errors
                 visemeId = 4, // Another mouth shape (talking)
                 avatarType = AvatarType.MALE
             )

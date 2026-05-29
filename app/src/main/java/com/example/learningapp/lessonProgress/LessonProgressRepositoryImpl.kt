@@ -5,9 +5,9 @@ import com.example.learningapp.network.ApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
 import java.io.File
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -38,9 +38,9 @@ class LessonProgressRepositoryImpl @Inject constructor(
 
     override suspend fun evaluateSpeech(
         audioFile: File,
-        targetSentence: String,
+        sentenceId: String,
         language: String?
-    ): Result<ASRCombinedOut> {
+    ): Result<AssessmentResponse> {
         return withContext(Dispatchers.IO) {
             try {
                 Log.d(TAG, "Preparing to upload audio file. Size: ${audioFile.length()} bytes")
@@ -51,18 +51,20 @@ class LessonProgressRepositoryImpl @Inject constructor(
                 val filePart = MultipartBody.Part.createFormData("file", audioFile.name, requestFile)
 
                 // 2. Prepare the Text Fields
-                val targetSentencePart = targetSentence.toRequestBody("text/plain".toMediaTypeOrNull())
+                // Sending the sentenceId instead of the target sentence text
+                val sentenceIdPart = sentenceId.toRequestBody("text/plain".toMediaTypeOrNull())
                 val languagePart = language?.toRequestBody("text/plain".toMediaTypeOrNull())
 
                 // 3. Execute the Network Request
                 Log.d(TAG, "Sending audio to server for evaluation...")
                 val evaluationResult = apiService.evaluateAudio(
                     file = filePart,
-                    targetSentence = targetSentencePart,
+                    sentenceId = sentenceIdPart,
                     language = languagePart
                 )
 
-                Log.d(TAG, "Evaluation received successfully! Score: ${evaluationResult.llm.score}")
+                // Log using the new 'finalScore' property from AssessmentResponse
+                Log.d(TAG, "Evaluation received successfully! Score: ${evaluationResult.finalScore}")
                 Result.success(evaluationResult)
 
             } catch (e: Exception) {

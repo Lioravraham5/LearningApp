@@ -3,7 +3,7 @@ package com.example.learningapp.network
 import com.example.learningapp.categoryDetails.CategoryDetails
 import com.example.learningapp.home.Category
 import com.example.learningapp.lessonDetails.LessonDetails
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.progress.Badge
 import com.example.learningapp.progress.CategoryAchievement
@@ -57,21 +57,21 @@ interface ApiService {
     ): List<Sentence>
 
     /**
-     * Uploads the user's recorded audio and the target sentence to the server for evaluation.
+     * Uploads the user's recorded audio and the target sentence ID to the server for evaluation.
      * BEST PRACTICE: Using @Multipart allows us to send the physical file (.m4a) alongside
-     * regular text fields (target_sentence, language) efficiently.
+     * regular text fields efficiently. The server resolves the actual text securely via the DB.
      *
-     * @param file The recorded audio file wrapped in a MultipartBody.Part
-     * @param targetSentence The exact sentence the user was supposed to read
-     * @param language Optional expected language code (e.g., "en")
+     * @param file The recorded audio file wrapped in a MultipartBody.Part.
+     * @param sentenceId The unique identifier of the target sentence.
+     * @param language Optional expected language code (e.g., "en-US").
      */
     @Multipart
     @POST("asr")
     suspend fun evaluateAudio(
         @Part file: MultipartBody.Part,
-        @Part("target_sentence") targetSentence: RequestBody,
+        @Part("sentence_id") sentenceId: RequestBody,
         @Part("language") language: RequestBody? = null
-    ): ASRCombinedOut
+    ): AssessmentResponse
 
     // ==========================================
     // PROGRESS ENDPOINTS

@@ -20,18 +20,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
-import com.example.learningapp.lessonProgress.models.LLMOut
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
+import com.example.learningapp.lessonProgress.models.MispronouncedWord
+import com.example.learningapp.lessonProgress.models.PronunciationScores
 import com.example.learningapp.lessonProgress.models.Substitution
 
 /**
  * A clean, elegant speech bubble that knows how to highlight wrong words
- * based on the LLM evaluation.
+ * based on the Azure Pronunciation Assessment evaluation.
  */
 @Composable
 fun SpeechBubble(
     text: String,
-    evaluation: ASRCombinedOut?,
+    evaluation: AssessmentResponse?, // שונה מ-ASRCombinedOut?
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -57,55 +58,69 @@ fun SpeechBubble(
 }
 
 /**
- * Helper function to parse the target text and apply colors to mistakes.
- * BEST PRACTICE: By moving the color resolution outside or passing it as a parameter,
- * this logic remains pure and highly testable.
+ * Helper function to parse the target text and apply hierarchical colors to mistakes.
+ * BEST PRACTICE: Differentiates between missing/substituted words (Hard Errors)
+ * and poorly pronounced words (Soft Errors) to maximize learning value.
  *
  * @param targetText The original sentence the user was supposed to say.
- * @param evaluation The LLM feedback containing substitutions and missing words.
- * @return An [AnnotatedString] with the styling applied.
+ * @param evaluation The Assessment response containing the detailed Azure analysis.
+ * @param errorColor Color for missing or completely wrong words (Default: Red/Error).
+ * @param warningColor Color for mispronounced words (Default: Orange).
+ * @return An [AnnotatedString] with the correct pedagogical styling applied.
  */
 @Composable
-@ReadOnlyComposable // Indicates this function only reads Compose state (like colors)
+@ReadOnlyComposable
 fun buildFeedbackText(
     targetText: String,
-    evaluation: ASRCombinedOut?,
-    errorColor: Color = MaterialTheme.colorScheme.error // Defaulting to the theme's error color
+    evaluation: AssessmentResponse?,
+    errorColor: Color = MaterialTheme.colorScheme.error,
+    warningColor: Color = Color(0xFFFFA500) // Elegant Orange for pronunciation tweaks
 ): AnnotatedString {
 
-    // If no evaluation yet, or the user got it perfectly right, return plain text
-    if (evaluation == null || evaluation.llm.isCorrect) {
+    // If there is no evaluation yet, just return the plain text.
+    if (evaluation == null) {
         return AnnotatedString(targetText)
     }
 
-    // Collect all the words the user got wrong (missing or substituted expected words)
-    val errorWords = mutableSetOf<String>()
+    // 1. Gather "Hard Errors" (Missing words or expected words that were substituted)
+    val hardErrors = mutableSetOf<String>()
+    hardErrors.addAll(evaluation.missingWords.map { it.lowercase() })
+    evaluation.substitutions.forEach { hardErrors.add(it.expected.lowercase()) }
 
-    errorWords.addAll(evaluation.llm.missingWords.map { it.lowercase() })
-    evaluation.llm.substitutions.forEach { errorWords.add(it.expected.lowercase()) }
+    // 2. Gather "Soft Errors" (Words spoken, but flagged by Azure with low accuracy)
+    val softErrors = mutableSetOf<String>()
+    evaluation.mispronouncedWords.forEach { softErrors.add(it.word.lowercase()) }
 
-    // Build the string word by word, highlighting matches
+    // Early return ONLY if both error sets are completely empty (Flawless pronunciation)
+    if (hardErrors.isEmpty() && softErrors.isEmpty()) {
+        return AnnotatedString(targetText)
+    }
+
+    // 3. Build the annotated string, applying the pedagogical colors
     return buildAnnotatedString {
-        // Split by spaces to evaluate word by word
         val words = targetText.split(" ")
 
         words.forEachIndexed { index, word ->
-            // Clean punctuation for matching purposes (e.g., "apple," -> "apple")
+            // Clean punctuation to ensure accurate matching (e.g., "coffee," -> "coffee")
             val cleanWord = word.replace(Regex("[^A-Za-z0-9]"), "").lowercase()
 
-            if (errorWords.contains(cleanWord)) {
-                // Apply error styling (Red + Bold) to the missed word
-                withStyle(
-                    style = SpanStyle(
-                        color = errorColor,
-                        fontWeight = FontWeight.Bold
-                    )
-                ) {
+            when {
+                hardErrors.contains(cleanWord) -> {
+                    // Apply Red + Bold for critical mistakes
+                    withStyle(style = SpanStyle(color = errorColor, fontWeight = FontWeight.Bold)) {
+                        append(word)
+                    }
+                }
+                softErrors.contains(cleanWord) -> {
+                    // Apply Orange + Bold for pronunciation improvements
+                    withStyle(style = SpanStyle(color = warningColor, fontWeight = FontWeight.Bold)) {
+                        append(word)
+                    }
+                }
+                else -> {
+                    // Correctly pronounced word
                     append(word)
                 }
-            } else {
-                // Normal word
-                append(word)
             }
 
             // Re-add the space after the word (unless it's the last word)
@@ -122,37 +137,58 @@ fun buildFeedbackText(
 
 private const val TARGET_SENTENCE = "I would like a cup of coffee, please."
 
-private val mockPerfectEvaluation = ASRCombinedOut(
-    transcript = "I would like a cup of coffee please",
-    llm = LLMOut(
-        isCorrect = true,
-        correctedText = "I would like a cup of coffee please",
-        missingWords = emptyList(),
-        extraWords = emptyList(),
-        substitutions = emptyList(),
-        feedback = listOf("Perfect pronunciation!"),
-        score = 100,
-        detectedLanguage = "en"
-    )
+// 1. Mock for a flawless pronunciation
+private val mockPerfectEvaluation = AssessmentResponse(
+    sentenceId = "test_123",
+    recognizedText = "I would like a cup of coffee please",
+    targetSentence = TARGET_SENTENCE,
+    scores = PronunciationScores(
+        accuracy = 100f,
+        fluency = 100f,
+        completeness = 100f,
+        prosody = 100f,
+        pronunciation = 100f
+    ),
+    words = emptyList(), // Not needed for the bubble UI
+    finalScore = 100,
+    isPassed = true,
+    missingWords = emptyList(),
+    extraWords = emptyList(),
+    substitutions = emptyList(),
+    mispronouncedWords = emptyList(),
+    feedbackPoints = emptyList(),
+    feedbackText = "Excellent pronunciation! Great job."
 )
 
-private val mockErrorEvaluation = ASRCombinedOut(
-    transcript = "I would like a of tea please",
-    llm = LLMOut(
-        isCorrect = false,
-        correctedText = "I would like a cup of coffee please",
-        missingWords = listOf("cup"), // The user missed this word entirely
-        extraWords = emptyList(),
-        substitutions = listOf(
-            Substitution(
-                expected = "coffee",
-                heard = "tea"
-            ) // The user said "tea" instead of "coffee"
-        ),
-        feedback = listOf("You missed the word 'cup' and said 'tea' instead of 'coffee'."),
-        score = 75,
-        detectedLanguage = "en"
-    )
+// 2. Mock for mixed errors (Hard and Soft) to test the visual hierarchy
+private val mockMistakesEvaluation = AssessmentResponse(
+    sentenceId = "test_124",
+    recognizedText = "I would like a of tea pleeez",
+    targetSentence = TARGET_SENTENCE,
+    scores = PronunciationScores(
+        accuracy = 60f,
+        fluency = 75f,
+        completeness = 80f,
+        prosody = 70f,
+        pronunciation = 65f
+    ),
+    words = emptyList(),
+    finalScore = 65,
+    isPassed = false,
+    missingWords = listOf("cup"), // Hard Error -> Should be RED
+    extraWords = emptyList(),
+    substitutions = listOf(
+        Substitution(expected = "coffee", heard = "tea") // Hard Error -> Should be RED
+    ),
+    mispronouncedWords = listOf(
+        MispronouncedWord(
+            word = "please", // Soft Error -> Should be ORANGE
+            accuracyScore = 45f,
+            weakPhonemes = listOf("z")
+        )
+    ),
+    feedbackPoints = emptyList(),
+    feedbackText = "You missed the word 'cup', said 'tea' instead of 'coffee', and work on your pronunciation of 'please'."
 )
 
 @Preview(showBackground = true, name = "1. Speech Bubble - Null (Waiting)")
@@ -175,20 +211,22 @@ fun SpeechBubblePerfectPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             SpeechBubble(
                 text = TARGET_SENTENCE,
-                evaluation = mockPerfectEvaluation // User nailed it
+                evaluation = mockPerfectEvaluation // User nailed it -> Plain text
             )
         }
     }
 }
 
-@Preview(showBackground = true, name = "3. Speech Bubble - With Mistakes")
+@Preview(showBackground = true, name = "3. Speech Bubble - Mixed Mistakes")
 @Composable
 fun SpeechBubbleMistakesPreview() {
     MaterialTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             SpeechBubble(
                 text = TARGET_SENTENCE,
-                evaluation = mockErrorEvaluation // Words "cup" and "coffee" should be red & bold!
+                evaluation = mockMistakesEvaluation
+                // "cup" & "coffee" should be RED & Bold!
+                // "please" should be ORANGE & Bold!
             )
         }
     }

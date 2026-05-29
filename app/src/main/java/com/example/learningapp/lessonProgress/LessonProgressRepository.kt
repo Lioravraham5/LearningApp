@@ -1,6 +1,6 @@
 package com.example.learningapp.lessonProgress
 
-import com.example.learningapp.lessonProgress.models.ASRCombinedOut
+import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
 import java.io.File
 
@@ -19,13 +19,13 @@ interface LessonProgressRepository {
     /**
      * Uploads the user's audio recording and evaluates their pronunciation.
      * @param audioFile The locally saved .m4a file containing the user's voice.
-     * @param targetSentence The exact sentence the user was asked to read.
-     * @param language Optional language code (e.g., "en") to help the ASR model.
-     * @return A [Result] containing the LLM evaluation on success, or an Exception on failure.
+     * @param sentenceId The unique ID of the exact sentence the user was asked to read.
+     * @param language Optional language code (e.g., "en-US") to help the ASR model.
+     * @return A [Result] containing the Assessment response on success, or an Exception on failure.
      */
     suspend fun evaluateSpeech(
         audioFile: File,
-        targetSentence: String,
-        language: String? = "en"
-    ): Result<ASRCombinedOut>
+        sentenceId: String,
+        language: String? = "en-US"
+    ): Result<AssessmentResponse>
 }
