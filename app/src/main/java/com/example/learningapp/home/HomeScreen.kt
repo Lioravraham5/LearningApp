@@ -132,6 +132,7 @@ fun HomeScreenPreview() {
                         id = "1",
                         title = "Trip Abroad",
                         description = "Learn essential phrases for traveling.",
+                        iconUrl = null, // Added to fix compilation
                         totalLessons = 8,
                         completedLessons = 2,
                         progressPercentage = 0.33f
@@ -140,6 +141,7 @@ fun HomeScreenPreview() {
                         id = "2",
                         title = "Job Interview",
                         description = "Master professional language.",
+                        iconUrl = null, // Added to fix compilation
                         totalLessons = 12,
                         completedLessons = 5,
                         progressPercentage = 0.4f
@@ -148,6 +150,7 @@ fun HomeScreenPreview() {
                         id = "3",
                         title = "Socializing",
                         description = "Learn how to introduce yourself and make friends.",
+                        iconUrl = null, // Added to fix compilation
                         totalLessons = 10,
                         completedLessons = 7,
                         progressPercentage = 0.7f
@@ -156,6 +159,7 @@ fun HomeScreenPreview() {
                         id = "4",
                         title = "At the Restaurant",
                         description = "Ordering food and talking to waiters.",
+                        iconUrl = null, // Added to fix compilation
                         totalLessons = 6,
                         completedLessons = 0,
                         progressPercentage = 0f
@@ -164,6 +168,7 @@ fun HomeScreenPreview() {
                         id = "5",
                         title = "Shopping",
                         description = "Master phrases for buying clothes and groceries.",
+                        iconUrl = null, // Added to fix compilation
                         totalLessons = 15,
                         completedLessons = 3,
                         progressPercentage = 0.2f

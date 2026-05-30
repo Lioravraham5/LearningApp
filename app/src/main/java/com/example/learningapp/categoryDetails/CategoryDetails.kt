@@ -10,11 +10,7 @@ data class CategoryDetails(
     val id: String,
     val title: String,
     val description: String,
-    //@SerializedName("icon") val iconUrl: String?,
+    @SerializedName("icon") val iconUrl: String?,
     val lessons: List<Lesson>
-) {
-    // BEST PRACTICE: Hardcoded icon for the UI.
-    // Since it's not in the constructor, Retrofit ignores it when parsing the JSON.
-    val iconUrl: Int
-        get() = android.R.drawable.ic_menu_camera
-}
+)
+

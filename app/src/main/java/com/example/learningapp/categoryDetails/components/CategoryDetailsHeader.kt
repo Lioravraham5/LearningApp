@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,11 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.learningapp.categoryDetails.CategoryDetails
 
 /**
@@ -33,22 +33,18 @@ fun CategoryDetailsHeader(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally, // Center everything
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Large Circular Icon Background
-        Box(
-            modifier = Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = painterResource(id = category.iconUrl),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(48.dp)
+        // Best Practice: Conditional rendering.
+        // The image will only take up space if the URL is not null and not empty.
+        // We also removed the Box with the background color to eliminate the purple circle.
+        if (!category.iconUrl.isNullOrEmpty()) {
+            AsyncImage(
+                model = category.iconUrl,
+                contentDescription = category.title,
+                modifier = Modifier.size(96.dp),
+                contentScale = ContentScale.Fit
             )
         }
 
@@ -75,7 +71,7 @@ fun CategoryDetailsHeader(
 // PREVIEW
 // ==========================================
 
-@Preview(showBackground = true, name = "Category Details Header")
+@Preview(showBackground = true, name = "Category Details Header - Without Image")
 @Composable
 fun CategoryDetailsHeaderPreview() {
     // 1. Create mock data for the category
@@ -83,7 +79,8 @@ fun CategoryDetailsHeaderPreview() {
         id = "cat_1",
         title = "Advanced Grammar",
         description = "Master the complexities of verb conjugations, sentence structures, and advanced tenses to speak like a native.",
-        lessons = emptyList() // The header doesn't render lessons, so an empty list is fine here
+        iconUrl = null, // Will gracefully display nothing and shrink the height
+        lessons = emptyList()
     )
 
     MaterialTheme {
@@ -94,7 +91,6 @@ fun CategoryDetailsHeaderPreview() {
         ) {
             CategoryDetailsHeader(
                 category = mockCategory,
-                // Add some vertical padding just so it looks nice and centered in the preview window
                 modifier = Modifier.padding(vertical = 32.dp)
             )
         }

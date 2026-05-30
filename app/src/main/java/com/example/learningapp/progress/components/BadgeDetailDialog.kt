@@ -149,6 +149,10 @@ fun BadgeDetailDialog(
     }
 }
 
+// ==========================================
+// PREVIEW
+// ==========================================
+
 @Preview(showBackground = true, name = "Badge Detail Dialog - Unlocked")
 @Composable
 fun BadgeDetailDialogPreview() {

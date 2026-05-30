@@ -15,6 +15,7 @@ class MockHomeRepositoryImpl @Inject constructor() : HomeRepository {
                 id = "1",
                 title = "Job Interview",
                 description = "Master professional language and soft skills for successful job interviews in English.",
+                iconUrl = null, // Added missing parameter
                 totalLessons = 3,
                 completedLessons = 1,
                 progressPercentage = 0.33f // 1 out of 3
@@ -23,6 +24,7 @@ class MockHomeRepositoryImpl @Inject constructor() : HomeRepository {
                 id = "2",
                 title = "Trip Abroad",
                 description = "Learn essential vocabulary for traveling, booking hotels, and navigating airports.",
+                iconUrl = null, // Added missing parameter
                 totalLessons = 2,
                 completedLessons = 1,
                 progressPercentage = 0.5f // 1 out of 2
@@ -31,6 +33,7 @@ class MockHomeRepositoryImpl @Inject constructor() : HomeRepository {
                 id = "3",
                 title = "Everyday Small Talk",
                 description = "Build confidence in daily interactions, making new friends, and casual networking.",
+                iconUrl = null, // Added missing parameter
                 totalLessons = 3,
                 completedLessons = 1,
                 progressPercentage = 0.33f
@@ -39,6 +42,7 @@ class MockHomeRepositoryImpl @Inject constructor() : HomeRepository {
                 id = "4",
                 title = "Business Emails",
                 description = "Learn to write clear, professional, and effective emails for the corporate world.",
+                iconUrl = null, // Added missing parameter
                 totalLessons = 3,
                 completedLessons = 1,
                 progressPercentage = 0.33f
@@ -47,6 +51,7 @@ class MockHomeRepositoryImpl @Inject constructor() : HomeRepository {
                 id = "5",
                 title = "At the Restaurant",
                 description = "Ordering food and talking to waiters.",
+                iconUrl = null, // Added missing parameter
                 totalLessons = 2,
                 completedLessons = 0,
                 progressPercentage = 0f
@@ -55,6 +60,7 @@ class MockHomeRepositoryImpl @Inject constructor() : HomeRepository {
                 id = "6",
                 title = "Shopping",
                 description = "Master phrases for buying clothes and groceries.",
+                iconUrl = null, // Added missing parameter
                 totalLessons = 2,
                 completedLessons = 0,
                 progressPercentage = 0f

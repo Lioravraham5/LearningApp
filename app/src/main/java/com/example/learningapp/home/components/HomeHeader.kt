@@ -47,7 +47,10 @@ fun HomeHeader(
     }
 }
 
-// Preview function to test the UI without running the app
+// ==========================================
+// PREVIEW
+// ==========================================
+
 @Preview(showBackground = true)
 @Composable
 fun HomeHeaderPreview() {

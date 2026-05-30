@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id("kotlin-kapt") // Required for Hilt
+    // id("kotlin-kapt")
+    id("com.google.devtools.ksp") // Required for Hilt
     id("com.google.dagger.hilt.android")
 }
 
@@ -76,7 +77,8 @@ dependencies {
     // Hilt Android: Core library for Dependency Injection in Android
     implementation("com.google.dagger:hilt-android:2.55")
     // Hilt Compiler: Annotation processor for generating DI code
-    kapt("com.google.dagger:hilt-android-compiler:2.55")
+    //kapt("com.google.dagger:hilt-android-compiler:2.55")
+    ksp("com.google.dagger:hilt-android-compiler:2.55")
     // Hilt Navigation Compose: Integration between Hilt and Compose Navigation
     implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
 
@@ -106,4 +108,7 @@ dependencies {
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.2.0")
+
+    // --- Coil for Jetpack Compose - Image Loading from Network ---
+    implementation("io.coil-kt:coil-compose:2.7.0")
 }

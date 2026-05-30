@@ -183,6 +183,7 @@ private val mockCategoryDetailsPreview = CategoryDetails(
     id = "cat_1",
     title = "Advanced Grammar",
     description = "Master the complexities of verb conjugations, sentence structures, and advanced tenses to speak like a native.",
+    iconUrl = null, // Added to fix compilation
     lessons = mockLessonsPreview
 )
 
