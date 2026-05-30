@@ -42,6 +42,7 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             CategoryAchievement(
                 categoryId = "1",
                 categoryName = "Trip Abroad",
+                iconUrl = null,
                 averageScore = 92,
                 completedLessons = 8,
                 inProgressLessons = 2,
@@ -51,6 +52,7 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             CategoryAchievement(
                 categoryId = "2",
                 categoryName = "Job Interview",
+                iconUrl = null,
                 averageScore = 78,
                 completedLessons = 5,
                 inProgressLessons = 4,
@@ -60,6 +62,7 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             CategoryAchievement(
                 categoryId = "3",
                 categoryName = "Daily Life",
+                iconUrl = null,
                 averageScore = 100,
                 completedLessons = 10,
                 inProgressLessons = 0,

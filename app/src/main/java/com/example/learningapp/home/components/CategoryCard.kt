@@ -1,11 +1,9 @@
 package com.example.learningapp.home.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,10 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.learningapp.R
 import com.example.learningapp.home.Category
 
 /**
@@ -53,12 +53,15 @@ fun CategoryCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // Best Practice: Standard AsyncImage leaves the space transparent if no image is loaded
+            // Best Practice: Handle Loading, Error, and Null states with a consistent fallback
             AsyncImage(
                 model = category.iconUrl,
                 contentDescription = category.title,
                 modifier = Modifier.size(48.dp),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Fit,
+                placeholder = painterResource(id = R.drawable.category_icon_loading_fallback), // On loading image
+                error = painterResource(id = R.drawable.category_icon_error_fallback),       // On loading image failed
+                fallback = painterResource(id = R.drawable.category_icon_error_fallback)     // On null icon
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -127,7 +130,7 @@ fun CategoryCardPreview() {
                 id = "1",
                 title = "Job Interview",
                 description = "Master professional language for successful job interviews",
-                iconUrl = null, // Will gracefully display nothing
+                iconUrl = null, // Coil will gracefully display the fallback placeholder!
                 totalLessons = 12,
                 completedLessons = 5,
                 progressPercentage = 0.4f

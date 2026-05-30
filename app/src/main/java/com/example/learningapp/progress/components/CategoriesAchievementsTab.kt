@@ -81,6 +81,7 @@ private fun AchievementsSuccessContent(
 // ==========================================
 // PREVIEW
 // ==========================================
+
 @Preview(showBackground = true, name = "Achievements Tab - Light Mode")
 @Composable
 fun AchievementsTabPreview() {
@@ -88,6 +89,7 @@ fun AchievementsTabPreview() {
         CategoryAchievement(
             categoryId = "1",
             categoryName = "Trip Abroad",
+            iconUrl = null, // Added to fix compilation
             averageScore = 92,
             completedLessons = 8,
             inProgressLessons = 2,
@@ -97,6 +99,7 @@ fun AchievementsTabPreview() {
         CategoryAchievement(
             categoryId = "2",
             categoryName = "Job Interview",
+            iconUrl = null, // Added to fix compilation
             averageScore = 78,
             completedLessons = 5,
             inProgressLessons = 4,
@@ -106,6 +109,7 @@ fun AchievementsTabPreview() {
         CategoryAchievement(
             categoryId = "3",
             categoryName = "Daily Life",
+            iconUrl = null, // Added to fix compilation
             averageScore = 100,
             completedLessons = 10,
             inProgressLessons = 0,

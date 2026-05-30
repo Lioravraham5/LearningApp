@@ -2,9 +2,7 @@ package com.example.learningapp.progress.components
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Star
@@ -34,7 +31,10 @@ import androidx.compose.ui.unit.dp
 import com.example.learningapp.progress.CategoryAchievement
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import coil.compose.AsyncImage
+import com.example.learningapp.R
 
 /**
  * A stateless, modern card component displaying the progress of a specific learning category.
@@ -75,20 +75,16 @@ fun CategoryAchievementItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = achievement.iconUrl),
-                        contentDescription = achievement.categoryName,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+                // Best Practice: Handle Loading, Error, and Null states gracefully
+                AsyncImage(
+                    model = achievement.iconUrl,
+                    contentDescription = achievement.categoryName,
+                    modifier = Modifier.size(48.dp),
+                    contentScale = ContentScale.Fit,
+                    placeholder = painterResource(id = R.drawable.category_icon_loading_fallback),
+                    error = painterResource(id = R.drawable.category_icon_error_fallback),
+                    fallback = painterResource(id = R.drawable.category_icon_error_fallback)
+                )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -104,24 +100,24 @@ fun CategoryAchievementItem(
 
             // --- New Centered Row: Average Score Badge ---
             Surface(
-                modifier = Modifier.align(Alignment.CenterHorizontally), // <--- This centers the badge!
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), // Added slightly more padding for a better standalone look
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Star,
                         contentDescription = "Average Score",
-                        modifier = Modifier.size(16.dp) // Made the icon slightly bigger to fit the new centered layout
+                        modifier = Modifier.size(16.dp)
                     )
                     Text(
                         text = "${achievement.averageScore}% Average Score",
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold) // Bumped up the text size a bit
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 }
             }
@@ -204,11 +200,12 @@ fun CategoryAchievementItemPreview() {
     val mockAchievement = CategoryAchievement(
         categoryId = "1",
         categoryName = "Android Development",
+        iconUrl = null, // Coil will safely catch this null and display the fallback placeholder!
         averageScore = 92,
         completedLessons = 10,
         inProgressLessons = 3,
         unDoneLessons = 7,
-        totalLessons = 20 // 10 completed out of 20 = 50% progress bar
+        totalLessons = 20
     )
 
     MaterialTheme {

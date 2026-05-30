@@ -1,26 +1,25 @@
 package com.example.learningapp.categoryDetails.components
 
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.learningapp.R
 import com.example.learningapp.categoryDetails.CategoryDetails
 
 /**
@@ -36,17 +35,18 @@ fun CategoryDetailsHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Best Practice: Conditional rendering.
-        // The image will only take up space if the URL is not null and not empty.
-        // We also removed the Box with the background color to eliminate the purple circle.
-        if (!category.iconUrl.isNullOrEmpty()) {
-            AsyncImage(
-                model = category.iconUrl,
-                contentDescription = category.title,
-                modifier = Modifier.size(96.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
+
+        // Best Practice: The "if" condition was removed so AsyncImage can always render.
+        // If the URL is null, it will gracefully fall back to the placeholder image.
+        AsyncImage(
+            model = category.iconUrl,
+            contentDescription = category.title,
+            modifier = Modifier.size(96.dp),
+            contentScale = ContentScale.Fit,
+            placeholder = painterResource(id = R.drawable.category_icon_loading_fallback), // On loading image
+            error = painterResource(id = R.drawable.category_icon_error_fallback),       // On loading image failed
+            fallback = painterResource(id = R.drawable.category_icon_error_fallback)     // On null icon
+        )
 
         // Category Title
         Text(
@@ -71,7 +71,7 @@ fun CategoryDetailsHeader(
 // PREVIEW
 // ==========================================
 
-@Preview(showBackground = true, name = "Category Details Header - Without Image")
+@Preview(showBackground = true, name = "Category Details Header - With Fallback")
 @Composable
 fun CategoryDetailsHeaderPreview() {
     // 1. Create mock data for the category
@@ -79,7 +79,7 @@ fun CategoryDetailsHeaderPreview() {
         id = "cat_1",
         title = "Advanced Grammar",
         description = "Master the complexities of verb conjugations, sentence structures, and advanced tenses to speak like a native.",
-        iconUrl = null, // Will gracefully display nothing and shrink the height
+        iconUrl = null, // Coil will safely catch this null and display the fallback placeholder!
         lessons = emptyList()
     )
 
