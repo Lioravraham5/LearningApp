@@ -99,7 +99,7 @@ fun LessonItem(
             ) {
                 // Modern Linear Progress Indicator with rounded caps
                 LinearProgressIndicator(
-                    progress = { lesson.progressPercentage },
+                    progress = { lesson.progressPercentage / 100f },
                     modifier = Modifier
                         .weight(1f)
                         .height(8.dp),
@@ -110,9 +110,8 @@ fun LessonItem(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // Progress Percentage Text (e.g., "50%")
                 Text(
-                    text = "${(lesson.progressPercentage * 100).toInt()}%",
+                    text = "${lesson.progressPercentage.toInt()}%",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -120,6 +119,10 @@ fun LessonItem(
         }
     }
 }
+
+// ==========================================
+// PREVIEW
+// ==========================================
 
 @Preview(showBackground = true, name = "Lesson Items List")
 @Composable
@@ -129,19 +132,19 @@ fun LessonItemPreview() {
         Lesson(
             id = "1",
             title = "Basic Greetings",
-            progressPercentage = 1.0f, // 100% completed
+            progressPercentage = 100f, // 100% completed
             difficulty = LessonDifficulty.EASY
         ),
         Lesson(
             id = "2",
             title = "Present Tense Verbs",
-            progressPercentage = 0.45f, // 45% completed
+            progressPercentage = 45f, // 45% completed
             difficulty = LessonDifficulty.MEDIUM
         ),
         Lesson(
             id = "3",
             title = "Advanced Past Perfect Subjunctive", // Long title to test truncation
-            progressPercentage = 0.1f,  // 10% completed
+            progressPercentage = 10f,  // 10% completed
             difficulty = LessonDifficulty.HARD
         )
     )
