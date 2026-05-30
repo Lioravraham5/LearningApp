@@ -1,6 +1,7 @@
 package com.example.learningapp.lessonProgress
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.learningapp.core.UserSettingsRepository
@@ -23,10 +24,14 @@ class LessonProgressViewModel @Inject constructor(
     private val repository: LessonProgressRepository,
     private val ttsService: TtsService,
     private val audioRecorderService: AudioRecorderService,
-    private val userSettingsRepository: UserSettingsRepository
+    private val userSettingsRepository: UserSettingsRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val TAG = "LessonProgressViewModel"
+
+    // The sentence index to start from
+    private val startIndex: Int = savedStateHandle["startIndex"] ?: 0
 
     private val _uiState = MutableStateFlow(LessonProgressState())
     val uiState: StateFlow<LessonProgressState> = _uiState.asStateFlow()
@@ -58,10 +63,15 @@ class LessonProgressViewModel @Inject constructor(
             val result = repository.getLessonSentences(lessonId)
 
             result.onSuccess { sentencesList ->
+
+                Log.d(TAG, "startIndex: $startIndex")
+                val safeIndex = if (startIndex < sentencesList.size) startIndex else 0
+                Log.d(TAG, "safeIndex: $safeIndex")
+
                 _uiState.update {
                     it.copy(
                         sentences = sentencesList,
-                        currentSentenceIndex = 0,
+                        currentSentenceIndex = safeIndex,
                         step = LessonStep.READY_TO_START
                     )
                 }

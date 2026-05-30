@@ -50,14 +50,14 @@ sealed class MainScreen(val route: String) {
         }
     }
 
-    // The Interactive Lesson Player, It includes a placeholder parameter: {lessonId}
-    object LessonProgress : MainScreen("lesson_progress/{lessonId}") {
+    // The Interactive Lesson Player, It includes a placeholder parameter: {lessonId} and an optional {startIndex}
+    object LessonProgress : MainScreen("lesson_progress/{lessonId}?startIndex={startIndex}") {
         /**
          * A helper function to easily create the route string when we want to navigate.
-         * Usage: MainScreen.LessonProgress.createRoute("123") -> returns "lesson_progress/123"
+         * Usage: MainScreen.LessonProgress.createRoute("123", 2) -> returns "lesson_progress/123?startIndex=2"
          */
-        fun createRoute(lessonId: String): String {
-            return "lesson_progress/$lessonId"
+        fun createRoute(lessonId: String, startIndex: Int = 0): String {
+            return "lesson_progress/$lessonId?startIndex=$startIndex"
         }
     }
 }

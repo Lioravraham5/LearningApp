@@ -137,10 +137,7 @@ fun AppNavGraph(
                         navController.popBackStack()
                     },
                     onNavigateToLessonPlayer = { id, startIndex ->
-                        // UPDATED: Now we actually trigger the navigation to our new screen!
-                        // (If you want to support jumping to a specific sentence index later,
-                        // you can pass startIndex in the route as well).
-                        navController.navigate(MainScreen.LessonProgress.createRoute(id))
+                        navController.navigate(MainScreen.LessonProgress.createRoute(id, startIndex))
                     }
                 )
             }
@@ -150,6 +147,10 @@ fun AppNavGraph(
                 arguments = listOf(
                     navArgument("lessonId") {
                         type = NavType.StringType
+                    },
+                    navArgument("startIndex") {
+                        type = NavType.IntType
+                        defaultValue = 0
                     }
                 )
             ) { navBackStackEntry ->
