@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
@@ -24,7 +25,7 @@ object NetworkModule {
     // If you are testing on an Android Emulator, use "http://10.0.2.2:8000/"
     // If you are testing on a physical device, use your computer's local Wi-Fi IP (e.g., "http://192.168.1.15:8000/")
     //private const val BASE_URL = "http://10.0.2.2:8000/"
-    private const val BASE_URL = "http://192.168.1.146:8000/"
+    private const val BASE_URL = "http://10.0.2.2:8000/"
 
     @Provides
     @Singleton
@@ -44,6 +45,10 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor) // 1. Attaches the Firebase Token
             .addInterceptor(loggingInterceptor) // 2. Logs the network traffic
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .writeTimeout(120, TimeUnit.SECONDS)
+            .callTimeout(180, TimeUnit.SECONDS)
             .build()
     }
 
