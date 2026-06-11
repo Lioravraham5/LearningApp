@@ -78,6 +78,7 @@ private const val TARGET_SENTENCE = "I would like a cup of coffee, please."
 // 1. Mock for a flawless pronunciation
 private val mockPerfectEvaluation = AssessmentResponse(
     sentenceId = "test_123",
+    runId = "run_456",
     recognizedText = "I would like a cup of coffee please",
     targetSentence = TARGET_SENTENCE,
     scores = PronunciationScores(
@@ -101,6 +102,7 @@ private val mockPerfectEvaluation = AssessmentResponse(
 // 2. Mock for mixed errors (Hard and Soft) to test the visual hierarchy
 private val mockMistakesEvaluation = AssessmentResponse(
     sentenceId = "test_124",
+    runId = "run_456",
     recognizedText = "I would like a of tea pleeez",
     targetSentence = TARGET_SENTENCE,
     scores = PronunciationScores(

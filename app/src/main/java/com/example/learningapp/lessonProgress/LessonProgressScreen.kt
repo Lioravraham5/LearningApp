@@ -444,6 +444,7 @@ fun Preview_LessonFeedback_Mistakes() {
     // Mocking an Azure output where the user missed the word "software"
     val mockEvaluation = AssessmentResponse(
         sentenceId = "1",
+        runId = "run123",
         recognizedText = "I am a engineer.",
         targetSentence = "I am a software engineer.",
         scores = dummyScores.copy(accuracy = 70f), // Lower accuracy
@@ -479,6 +480,7 @@ fun Preview_LessonFeedback_Mistakes() {
 fun Preview_LessonFeedback_Perfect() {
     val perfectEvaluation = AssessmentResponse(
         sentenceId = "1",
+        runId = "run123",
         recognizedText = "I am a software engineer.",
         targetSentence = "I am a software engineer.",
         scores = dummyScores,

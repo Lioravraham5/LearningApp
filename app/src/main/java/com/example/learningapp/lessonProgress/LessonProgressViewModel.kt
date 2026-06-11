@@ -8,6 +8,7 @@ import com.example.learningapp.core.UserSettingsRepository
 import com.example.learningapp.lessonProgress.services.AudioRecorderService
 import com.example.learningapp.lessonProgress.services.TtsService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,28 +55,56 @@ class LessonProgressViewModel @Inject constructor(
     }
 
     /**
-     * Step A: Initialization. Fetches the sentences from the server.
+     * Step A: Initialization. Fetches the sentences AND initializes the run_id from the server.
+     * BEST PRACTICE: Run both network requests concurrently using async/await.
      */
     fun loadLesson(lessonId: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(step = LessonStep.LOADING_SENTENCES, errorMessage = null) }
 
-            val result = repository.getLessonSentences(lessonId)
+            try {
+                // NEW: Determine intent based on the navigation argument
+                // If startIndex > 0, the user is resuming an existing run.
+                val isResumeIntent = startIndex > 0
 
-            result.onSuccess { sentencesList ->
+                // Fire both requests simultaneously
+                val sentencesDeferred = async { repository.getLessonSentences(lessonId) }
+                // UPDATED: Pass the isResumeIntent to the repository
+                val startLessonDeferred = async { repository.startLesson(lessonId, isResumeIntent) }
 
-                Log.d(TAG, "startIndex: $startIndex")
-                val safeIndex = if (startIndex < sentencesList.size) startIndex else 0
-                Log.d(TAG, "safeIndex: $safeIndex")
+                // Wait for both to finish
+                val sentencesResult = sentencesDeferred.await()
+                val startLessonResult = startLessonDeferred.await()
 
-                _uiState.update {
-                    it.copy(
-                        sentences = sentencesList,
-                        currentSentenceIndex = safeIndex,
-                        step = LessonStep.READY_TO_START
-                    )
+                // Check if both were successful
+                if (sentencesResult.isSuccess && startLessonResult.isSuccess) {
+                    val sentencesList = sentencesResult.getOrNull() ?: emptyList()
+                    val runId = startLessonResult.getOrNull()?.runId
+
+                    if (runId.isNullOrEmpty()) {
+                        throw Exception("Server did not return a valid run_id.")
+                    }
+
+                    Log.d(TAG, "startIndex: $startIndex")
+                    val safeIndex = if (startIndex < sentencesList.size) startIndex else 0
+                    Log.d(TAG, "safeIndex: $safeIndex, runId: $runId")
+
+                    _uiState.update {
+                        it.copy(
+                            runId = runId, // Save the new or existing run tracking ID
+                            sentences = sentencesList,
+                            currentSentenceIndex = safeIndex,
+                            step = LessonStep.READY_TO_START
+                        )
+                    }
+                } else {
+                    // Extract the first error that occurred
+                    val error = sentencesResult.exceptionOrNull() ?: startLessonResult.exceptionOrNull()
+                    throw error ?: Exception("Unknown error occurred during initialization.")
                 }
-            }.onFailure { error ->
+
+            } catch (error: Exception) {
+                Log.e(TAG, "Failed to load lesson or start run", error)
                 _uiState.update {
                     it.copy(errorMessage = "Failed to load lesson: ${error.localizedMessage}")
                 }
@@ -122,12 +151,13 @@ class LessonProgressViewModel @Inject constructor(
      */
     fun stopRecordingAndAnalyze() {
         val audioFile = audioRecorderService.stopRecording()
-        // SHIFT: We now extract the ID instead of the text
         val currentSentenceId = _uiState.value.currentSentence?.id
+        val currentRunId = _uiState.value.runId // Extract the active run ID
 
-        if (audioFile == null || currentSentenceId == null) {
+        // Defensive check to ensure we have all required tracking parameters
+        if (audioFile == null || currentSentenceId == null || currentRunId == null) {
             _uiState.update {
-                it.copy(errorMessage = "Recording failed.", step = LessonStep.WAITING_FOR_RECORDING)
+                it.copy(errorMessage = "Recording failed or session expired.", step = LessonStep.WAITING_FOR_RECORDING)
             }
             return
         }
@@ -136,8 +166,8 @@ class LessonProgressViewModel @Inject constructor(
             // Change state to show a loading spinner / analyzing animation
             _uiState.update { it.copy(step = LessonStep.ANALYZING) }
 
-            // SHIFT: Passing the ID to the repository
-            val result = repository.evaluateSpeech(audioFile, currentSentenceId)
+            // MODIFIED: Pass the active runId to the repository alongside the audio and sentence ID
+            val result = repository.evaluateSpeech(audioFile, currentSentenceId, currentRunId)
 
             result.onSuccess { evaluation ->
                 // Move to Feedback step and store the evaluation data
@@ -149,7 +179,6 @@ class LessonProgressViewModel @Inject constructor(
                 }
 
                 // Step E: Avatar reads the feedback dynamically!
-                // SHIFT: We simply pass the feedbackText string generated directly by the server
                 val feedbackSpokenText = evaluation.feedbackText
                 ttsService.speakText(feedbackSpokenText)
 

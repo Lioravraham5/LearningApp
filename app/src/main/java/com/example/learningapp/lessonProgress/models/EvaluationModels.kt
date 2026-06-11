@@ -67,6 +67,7 @@ data class FeedbackPoint(
  */
 data class AssessmentResponse(
     @SerializedName("sentence_id") val sentenceId: String,
+    @SerializedName("run_id") val runId: String,
     @SerializedName("recognized_text") val recognizedText: String,
     @SerializedName("target_sentence") val targetSentence: String,
     val scores: PronunciationScores,

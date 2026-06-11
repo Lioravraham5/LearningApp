@@ -25,6 +25,10 @@ enum class LessonStep {
  */
 data class LessonProgressState(
     val step: LessonStep = LessonStep.LOADING_SENTENCES,
+
+    // Holds the unique ID for the current active lesson run. Received from the server when starting/restarting a lesson.
+    val runId: String? = null,
+
     val sentences: List<Sentence> = emptyList(),
     val currentSentenceIndex: Int = 0,
     // Azure TTS Viseme ID for the Avatar's mouth
