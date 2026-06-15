@@ -97,9 +97,9 @@ fun LessonItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Modern Linear Progress Indicator with rounded caps
+                // The backend sends a value between 0.0 and 1.0 (e.g., 0.5), LinearProgressIndicator expects exactly this format.
                 LinearProgressIndicator(
-                    progress = { lesson.progressPercentage / 100f },
+                    progress = { lesson.progressPercentage },
                     modifier = Modifier
                         .weight(1f)
                         .height(8.dp),
@@ -110,8 +110,10 @@ fun LessonItem(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
+                // Multiply by 100 before casting to Int to get the correct percentage text
+                val percentageText = (lesson.progressPercentage * 100).toInt()
                 Text(
-                    text = "${lesson.progressPercentage.toInt()}%",
+                    text = "$percentageText%",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

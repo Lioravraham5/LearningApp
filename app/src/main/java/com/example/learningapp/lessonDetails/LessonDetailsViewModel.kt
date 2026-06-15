@@ -43,25 +43,31 @@ class LessonDetailsViewModel @Inject constructor(
     val uiState: StateFlow<UiState<LessonDetails>> = _uiState.asStateFlow()
 
     init {
+        // Initial load
         loadLessonDetails()
     }
 
     /**
      * Fetches the lesson details.
-     * Uses the immutable 'lessonId' initialized above.
+     * @param isRefresh If true, avoids emitting UiState.Loading to prevent UI flickering when returning to the screen.
      */
-    fun loadLessonDetails() {
+    fun loadLessonDetails(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
+            if (!isRefresh) {
+                _uiState.value = UiState.Loading
+            }
 
             try {
-                // Now we simply use the immutable lessonId
                 val details = repository.getLessonDetails(lessonId)
                 Log.d(TAG, "Successfully loaded details for lessonId: $lessonId")
+                // This will smoothly replace the old Success state with the new Success state
                 _uiState.value = UiState.Success(details)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load details for lessonId: $lessonId", e)
-                _uiState.value = UiState.Error(e.localizedMessage ?: "An unexpected error occurred.")
+                // Only show error screen if we don't already have data (optional, but good practice)
+                if (_uiState.value !is UiState.Success) {
+                    _uiState.value = UiState.Error(e.localizedMessage ?: "An unexpected error occurred.")
+                }
             }
         }
     }

@@ -314,7 +314,7 @@ fun AnalyzingControl(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Analyzing pronunciation...",
+            text = "Evaluating speech and pronunciation...",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

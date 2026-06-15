@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.categoryDetails.components.CategoryDetailsHeader
 import com.example.learningapp.categoryDetails.components.LessonItem
@@ -46,6 +50,24 @@ fun CategoryDetailsScreen(
 ) {
     // Collect the state in a lifecycle-aware manner
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // Get the current lifecycle owner to observe lifecycle events
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // BEST PRACTICE: Listen to lifecycle events to refresh data when returning to this screen
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // Fetch the latest progress silently
+                viewModel.loadCategoryDetails(isRefresh = true)
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     CategoryDetailsContent(
         state = uiState,

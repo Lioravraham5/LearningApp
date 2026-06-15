@@ -19,12 +19,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.core.UiState
 import com.example.learningapp.lessonDetails.components.LessonDetailsActionButtons
@@ -40,6 +44,25 @@ fun LessonDetailsScreen(
     onNavigateToLessonPlayer: (lessonId: String, startIndex: Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // BEST PRACTICE: Listen to lifecycle events to refresh data when returning to this screen
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // Fetch the latest progress silently
+                viewModel.loadLessonDetails(isRefresh = true)
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // Cleanup when the composable leaves the composition
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LessonDetailsContent(
         state = uiState,
