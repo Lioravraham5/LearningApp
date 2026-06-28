@@ -1,31 +1,26 @@
 package com.example.learningapp.lessonDetails.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.learningapp.lessonDetails.LessonDetails
 
 /**
- * A helper component specifically for the top section of the lesson details screen.
- * Adapted to perfectly match the design language of CategoryDetailsHeader.
+ * A typography-focused header component for the lesson details screen.
+ * Uses a subtle "overline" badge to anchor the visual hierarchy instead of an icon.
  */
 @Composable
 fun LessonDetailsHeader(
@@ -37,37 +32,36 @@ fun LessonDetailsHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Large Circular Icon Background (M3 styling)
-        Box(
-            modifier = Modifier
-                .size(96.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
+        // 1. Visual Anchor (Badge/Chip) instead of an icon
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ) {
-            Icon(
-                painter = painterResource(id = lesson.iconUrl),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(48.dp)
+            Text(
+                text = "LESSON",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                letterSpacing = 1.5.sp // Tracking out the letters gives a premium, editorial look
             )
         }
 
-        // Lesson Title
+        // 2. Lesson Title
         Text(
             text = lesson.title,
             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        // Lesson Description
+        // 3. Lesson Description
         Text(
             text = lesson.description,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 24.dp) // Slightly tighter padding for better text wrapping
         )
     }
 }
@@ -76,11 +70,10 @@ fun LessonDetailsHeader(
 // PREVIEW
 // ==========================================
 
-@Preview(showBackground = true, name = "Lesson Details Header - Light Mode")
+@Preview(showBackground = true, name = "Lesson Details Header - Typography Driven")
 @Composable
 fun LessonDetailsHeaderPreview() {
     MaterialTheme {
-        // Surface provides the default Material background color
         Surface(color = MaterialTheme.colorScheme.background) {
             val mockLesson = LessonDetails(
                 id = "mock_l1",
@@ -92,7 +85,7 @@ fun LessonDetailsHeaderPreview() {
 
             LessonDetailsHeader(
                 lesson = mockLesson,
-                modifier = Modifier.padding(vertical = 24.dp)
+                modifier = Modifier.padding(vertical = 32.dp)
             )
         }
     }

@@ -11,7 +11,6 @@ data class LessonDetails(
     val id: String,
     val title: String,
     val description: String,
-    //@SerializedName("icon") val iconUrl: String?,
     @SerializedName("sentences_count") val sentencesCount: Int,
     @SerializedName("completed_sentences") val completedSentences: Int
 ) {

@@ -12,12 +12,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.home.components.CategoryCard
 import com.example.learningapp.home.components.HomeHeader
@@ -34,10 +38,22 @@ fun HomeScreen(
 ) {
     // Collects the state in a lifecycle-aware manner.
     val state by viewModel.homeState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    // This triggers every time the user navigates back to the Home tab.
-    LaunchedEffect(Unit) {
-        viewModel.refreshUser()
+    // BEST PRACTICE: Listen to lifecycle events to refresh data when returning to the Home tab
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                // Fetch the latest categories and user data silently (isRefresh = true)
+                viewModel.loadHomeData(isRefresh = true)
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     // Pass the collected state to the stateless UI component

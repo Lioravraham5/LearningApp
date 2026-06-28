@@ -38,14 +38,20 @@ class HomeViewModel @Inject constructor(
     val homeState: StateFlow<HomeState> = _homeState.asStateFlow()
 
     init {
+        // Initial load
         loadHomeData()
     }
 
-    // Fetches user data and categories.
-    fun loadHomeData() {
+    /**
+     * Fetches user data and categories.
+     * @param isRefresh If true, avoids emitting isLoading = true to prevent UI flickering.
+     */
+    fun loadHomeData(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            // Show loading state.
-            _homeState.update { it.copy(isLoading = true) }
+            if (!isRefresh) {
+                // Show loading state only on initial load
+                _homeState.update { it.copy(isLoading = true) }
+            }
 
             try {
                 // Fetch categories from the repository.
@@ -54,15 +60,14 @@ class HomeViewModel @Inject constructor(
 
                 // Fetch the current logged-in user
                 val currentUser = authRepository.getCurrentUser()
-
-                // Determine the name to display using a smart fallback mechanism
                 val displayName = currentUser.generateDisplayName()
 
                 _homeState.update {
                     it.copy(
                         isLoading = false,
                         userName = displayName,
-                        categories = categories
+                        categories = categories,
+                        error = null // Clear any previous errors on success
                     )
                 }
             } catch (e: Exception) {
@@ -76,24 +81,6 @@ class HomeViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    /**
-     * Refreshes lightweight user data.
-     * Called every time the Home screen becomes active to ensure data is synced.
-     */
-    fun refreshUser() {
-        try {
-            val currentUser = authRepository.getCurrentUser()
-            val displayName = currentUser.generateDisplayName()
-
-            // Update only the user name in the state, keep everything else as is
-            _homeState.update {
-                it.copy(userName = displayName)
-            }
-        } catch (e: Exception) {
-            Log.d(TAG, "Failed to refresh user data: ${e.message}")
         }
     }
 }
