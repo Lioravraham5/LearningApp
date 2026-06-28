@@ -60,6 +60,16 @@ sealed class MainScreen(val route: String) {
             return "lesson_progress/$lessonId?startIndex=$startIndex"
         }
     }
+
+    object LessonEnd : MainScreen("lesson_end/{lessonId}/{runId}") {
+        /**
+         * A helper function to easily create the route string when we want to navigate.
+         * Usage: MainScreen.LessonEnd.createRoute("123", "uuid-456")
+         */
+        fun createRoute(lessonId: String, runId: String): String {
+            return "lesson_end/$lessonId/$runId"
+        }
+    }
 }
 
 /**

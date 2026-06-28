@@ -63,7 +63,8 @@ import com.example.learningapp.lessonProgress.models.PronunciationScores
 fun LessonProgressScreen(
     lessonId: String,
     viewModel: LessonProgressViewModel = hiltViewModel(),
-    onExitLesson: () -> Unit // Callback to navigate back to LessonDetails
+    onExitLesson: () -> Unit, // Callback to navigate back to LessonDetails
+    onNavigateToLessonEnd: (lessonId: String, runId: String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -72,6 +73,16 @@ fun LessonProgressScreen(
     // State for controlling our custom dialogs
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+
+    // LaunchedEffect listens to step changes. It safely triggers the side-effect (Navigation) exactly once when the condition is met.
+    LaunchedEffect(uiState.step) {
+        if (uiState.step == LessonStep.LESSON_COMPLETED) {
+            val currentRunId = uiState.runId
+            if (!currentRunId.isNullOrEmpty()) {
+                onNavigateToLessonEnd(lessonId, currentRunId)
+            }
+        }
+    }
 
     // Listen to the system's lifecycle events for background handling
     DisposableEffect(lifecycleOwner) {

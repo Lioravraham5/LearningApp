@@ -3,6 +3,8 @@ package com.example.learningapp.network
 import com.example.learningapp.categoryDetails.CategoryDetails
 import com.example.learningapp.home.Category
 import com.example.learningapp.lessonDetails.LessonDetails
+import com.example.learningapp.lessonEnd.models.LessonCompleteRequest
+import com.example.learningapp.lessonEnd.models.LessonCompleteResponse
 import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.progress.Badge
@@ -11,6 +13,7 @@ import com.example.learningapp.progress.OverviewData
 import com.example.learningapp.lessonProgress.models.LessonStartResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -67,6 +70,19 @@ interface ApiService {
     suspend fun getLessonSentences(
         @Path("lesson_id") lessonId: String
     ): List<Sentence>
+
+    /**
+     * Finalizes the active lesson session run, updates database progress status to COMPLETED,
+     * and fetches the overall performance score and verbal summary feedback.
+     *
+     * @param lessonId The unique ID of the finalized lesson.
+     * @param request Payload containing the active run_id tracking this specific session.
+     */
+    @POST("lessons/{lesson_id}/complete")
+    suspend fun completeLesson(
+        @Path("lesson_id") lessonId: String,
+        @Body request: LessonCompleteRequest
+    ): LessonCompleteResponse
 
     /**
      * Uploads the user's recorded audio alongside the target sentence ID and the active run_id.

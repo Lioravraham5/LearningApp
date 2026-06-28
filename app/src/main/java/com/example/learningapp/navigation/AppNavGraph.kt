@@ -13,6 +13,7 @@ import androidx.navigation.navigation
 import com.example.learningapp.categoryDetails.CategoryDetailsScreen
 import com.example.learningapp.home.HomeScreen
 import com.example.learningapp.lessonDetails.LessonDetailsScreen
+import com.example.learningapp.lessonEnd.LessonEndScreen
 import com.example.learningapp.lessonProgress.LessonProgressScreen
 import com.example.learningapp.profile.ProfileScreen
 import com.example.learningapp.progress.ProgressScreen
@@ -163,10 +164,40 @@ fun AppNavGraph(
                         // When the user clicks the 'X' button and confirms exit,
                         // we simply pop the back stack to return to the Lesson Details screen.
                         navController.popBackStack()
+                    },
+                    onNavigateToLessonEnd = { completedLessonId, runId ->
+                        // Navigate to the Summary screen AND destroy the Progress screen behind it.
+                        // This prevents the user from pressing "Back" and accidentally re-entering the finished lesson.
+                        navController.navigate(MainScreen.LessonEnd.createRoute(completedLessonId, runId)) {
+                            popUpTo(MainScreen.LessonProgress.route) { inclusive = true }
+                        }
                     }
                 )
             }
 
+            composable(
+                route = MainScreen.LessonEnd.route,
+                arguments = listOf(
+                    navArgument("lessonId") { type = NavType.StringType },
+                    navArgument("runId") { type = NavType.StringType }
+                )
+            ) {
+                LessonEndScreen(
+                    onNavigateToCategoryDetails = {
+                        // The user clicked "Continue".
+                        // Stack is currently: CategoryDetails -> LessonDetails -> LessonEnd.
+                        // We pop up to LessonDetails and remove it (inclusive = true), landing cleanly on CategoryDetails!
+                        navController.popBackStack(MainScreen.LessonDetails.route, inclusive = true)
+                    },
+                    onPracticeAgain = { lessonIdToRepeat ->
+                        // The user clicked "Practice Again".
+                        // Replace the End screen with a fresh Progress screen starting at index 0.
+                        navController.navigate(MainScreen.LessonProgress.createRoute(lessonIdToRepeat, startIndex = 0)) {
+                            popUpTo(MainScreen.LessonEnd.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
         }
     }
 }

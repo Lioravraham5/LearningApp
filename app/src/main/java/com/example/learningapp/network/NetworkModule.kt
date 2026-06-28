@@ -25,7 +25,7 @@ object NetworkModule {
     // If you are testing on an Android Emulator, use "http://10.0.2.2:8000/"
     // If you are testing on a physical device, use your computer's local Wi-Fi IP (e.g., "http://192.168.1.15:8000/")
     //private const val BASE_URL = "http://10.0.2.2:8000/"
-    private const val BASE_URL = "http://192.168.1.111:8000/"
+    private const val BASE_URL = "http://192.168.1.146:8000/"
 
     @Provides
     @Singleton
