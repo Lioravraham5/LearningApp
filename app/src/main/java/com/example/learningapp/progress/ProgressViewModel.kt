@@ -1,7 +1,9 @@
 package com.example.learningapp.progress
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.learningapp.core.BadgeCelebrationCoordinator
 import com.example.learningapp.core.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,8 +28,11 @@ data class ProgressState(
 
 @HiltViewModel
 class ProgressViewModel @Inject constructor(
-    private val repository: ProgressRepository
+    private val repository: ProgressRepository,
+    private val badgeCelebrationCoordinator: BadgeCelebrationCoordinator
 ) : ViewModel() {
+
+    private val TAG = "ProgressViewModel"
 
     // Backing property for the UI state
     private val _progressState = MutableStateFlow(ProgressState())
@@ -37,6 +42,29 @@ class ProgressViewModel @Inject constructor(
     init {
         // Immediately load the first tab's data when the screen is created
         loadOverview()
+
+        // Badges earned elsewhere in the app (lesson completion, or the resume-time fallback
+        // check) don't otherwise invalidate this ViewModel's cache - bottom-nav navigation
+        // preserves this instance (popUpTo saveState/restoreState), so a badge earned after the
+        // Overview/Badges tab was already visited this session would otherwise show stale data
+        // indefinitely.
+        viewModelScope.launch {
+            badgeCelebrationCoordinator.badgesChanged.collect {
+                Log.d(TAG, "Badge change detected, force-refreshing overview and badges")
+                refreshBadgeRelatedState()
+            }
+        }
+    }
+
+    /**
+     * Re-fetches Overview (badge count + recent achievements) and Badges, bypassing the normal
+     * lazy-load guard. Must actively re-fetch, not just reset to Idle: if the user is already on
+     * the Badges tab when this fires, resetting to Idle alone wouldn't retrigger anything, since
+     * the pager's LaunchedEffect only re-invokes onTabSelected on a page *change*.
+     */
+    private fun refreshBadgeRelatedState() {
+        loadOverview(forceRefresh = true)
+        loadBadges(forceRefresh = true)
     }
 
     /**
@@ -51,17 +79,19 @@ class ProgressViewModel @Inject constructor(
         }
     }
 
-    private fun loadOverview() {
+    private fun loadOverview(forceRefresh: Boolean = false) {
         // Lazy Loading check: Only fetch if we haven't started yet, or if there was a previous error
         val currentState = _progressState.value.overviewState
-        if (currentState is UiState.Success || currentState is UiState.Loading) return
+        if (!forceRefresh && (currentState is UiState.Success || currentState is UiState.Loading)) return
 
         viewModelScope.launch {
             _progressState.update { it.copy(overviewState = UiState.Loading) }
             try {
                 val data = repository.getOverviewData()
+                Log.d(TAG, "Successfully loaded overview data")
                 _progressState.update { it.copy(overviewState = UiState.Success(data)) }
             } catch (e: Exception) {
+                Log.e(TAG, "Failed to load overview data", e)
                 _progressState.update {
                     it.copy(overviewState = UiState.Error(e.localizedMessage ?: "Unknown error occurred"))
                 }
@@ -78,8 +108,10 @@ class ProgressViewModel @Inject constructor(
             _progressState.update { it.copy(achievementsState = UiState.Loading) }
             try {
                 val data = repository.getCategoryAchievements()
+                Log.d(TAG, "Successfully loaded category achievements")
                 _progressState.update { it.copy(achievementsState = UiState.Success(data)) }
             } catch (e: Exception) {
+                Log.e(TAG, "Failed to load category achievements", e)
                 _progressState.update {
                     it.copy(achievementsState = UiState.Error(e.localizedMessage ?: "Unknown error occurred"))
                 }
@@ -87,17 +119,19 @@ class ProgressViewModel @Inject constructor(
         }
     }
 
-    private fun loadBadges() {
+    private fun loadBadges(forceRefresh: Boolean = false) {
         // Lazy Loading check
         val currentState = _progressState.value.badgesState
-        if (currentState is UiState.Success || currentState is UiState.Loading) return
+        if (!forceRefresh && (currentState is UiState.Success || currentState is UiState.Loading)) return
 
         viewModelScope.launch {
             _progressState.update { it.copy(badgesState = UiState.Loading) }
             try {
                 val data = repository.getBadges()
+                Log.d(TAG, "Successfully loaded badges")
                 _progressState.update { it.copy(badgesState = UiState.Success(data)) }
             } catch (e: Exception) {
+                Log.e(TAG, "Failed to load badges", e)
                 _progressState.update {
                     it.copy(badgesState = UiState.Error(e.localizedMessage ?: "Unknown error occurred"))
                 }

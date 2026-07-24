@@ -101,4 +101,20 @@ class MockProgressRepositoryImpl @Inject constructor() : ProgressRepository {
             )
         )
     }
+
+    override suspend fun getUnseenBadges(): List<UnseenBadge> {
+        delay(500)
+        return listOf(
+            UnseenBadge(
+                id = "b1",
+                title = "First Step",
+                description = "Completed your very first lesson.",
+                achievedAt = "2026-07-21T10:00:00Z"
+            )
+        )
+    }
+
+    override suspend fun markBadgesSeen(badgeIds: List<String>) {
+        delay(300) // Simulate network request - no-op otherwise
+    }
 }

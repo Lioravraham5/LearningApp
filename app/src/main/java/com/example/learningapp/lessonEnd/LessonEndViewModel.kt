@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.learningapp.core.BadgeCelebrationCoordinator
 import com.example.learningapp.core.UiState
 import com.example.learningapp.lessonEnd.models.LessonCompleteResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LessonEndViewModel @Inject constructor(
     private val repository: LessonEndRepository,
+    private val badgeCelebrationCoordinator: BadgeCelebrationCoordinator,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -62,7 +64,9 @@ class LessonEndViewModel @Inject constructor(
             // 3. Handle the Result object gracefully
             result.onSuccess { response ->
                 Log.d(TAG, "Lesson finalized successfully. Score: ${response.averageScore}")
+                Log.d(TAG, "Enqueuing ${response.newBadges.size} new badge(s): ${response.newBadges.map { it.id }}")
                 _uiState.value = UiState.Success(response)
+                badgeCelebrationCoordinator.enqueue(response.newBadges)
             }.onFailure { error ->
                 Log.e(TAG, "Failed to finalize lesson: ${error.localizedMessage}", error)
                 _uiState.value = UiState.Error(error.localizedMessage ?: "An unexpected error occurred.")

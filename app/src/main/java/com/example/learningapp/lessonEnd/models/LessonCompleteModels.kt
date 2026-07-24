@@ -1,6 +1,7 @@
 package com.example.learningapp.lessonEnd.models
 
 import com.google.gson.annotations.SerializedName
+import com.example.learningapp.progress.Badge
 
 /**
  * Represents the completion status of a lesson, mirroring the backend enum.
@@ -27,5 +28,6 @@ data class LessonCompleteResponse(
     @SerializedName("lesson_id") val lessonId: String,
     @SerializedName("status") val status: ProgressStatus,
     @SerializedName("average_score") val averageScore: Int,
-    @SerializedName("feedback_text") val feedbackText: String
+    @SerializedName("feedback_text") val feedbackText: String,
+    @SerializedName("new_badges") val newBadges: List<Badge> = emptyList()
 )

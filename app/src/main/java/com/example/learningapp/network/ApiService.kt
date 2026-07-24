@@ -9,10 +9,13 @@ import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
 import com.example.learningapp.progress.Badge
 import com.example.learningapp.progress.CategoryAchievement
+import com.example.learningapp.progress.MarkBadgesSeenRequest
 import com.example.learningapp.progress.OverviewData
+import com.example.learningapp.progress.UnseenBadge
 import com.example.learningapp.lessonProgress.models.LessonStartResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
@@ -113,4 +116,20 @@ interface ApiService {
 
     @GET("progress/badges")
     suspend fun getBadges(): List<Badge>
+
+    /**
+     * Fallback path for badge celebrations: badges the user has earned but hasn't yet been
+     * shown a celebration for. Called on app resume so a celebration is never lost even if the
+     * inline `new_badges` field on a /lessons/{id}/complete response never reached the client.
+     */
+    @GET("progress/badges/unseen")
+    suspend fun getUnseenBadges(): List<UnseenBadge>
+
+    /**
+     * Acknowledges that the client has shown the celebration for the given badges.
+     * Returns 204 No Content - Response<Unit> is used deliberately so Retrofit/Gson never tries
+     * to parse an empty body.
+     */
+    @POST("progress/badges/seen")
+    suspend fun markBadgesSeen(@Body request: MarkBadgesSeenRequest): Response<Unit>
 }

@@ -1,11 +1,13 @@
 package com.example.learningapp.main
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.learningapp.badgeCelebration.BadgeCelebrationHost
 import com.example.learningapp.navigation.BottomNavItem
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -13,8 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.example.learningapp.navigation.AppNavGraph
+import com.example.learningapp.navigation.Graph
 
 /**
  * The Root Composable of the App.
@@ -38,56 +42,69 @@ fun MainAppScreen() {
     )
     val shouldShowBottomBar = currentRoute in bottomBarRoutes
 
-    Scaffold(
-        bottomBar = {
-            // 4. Conditional Rendering: Only draw the bar if we are in the Main Graph
-            if (shouldShowBottomBar) {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.background
-                    //windowInsets = WindowInsets(0.dp) // Removes extra bottom padding
-                ) {
-                    val items = listOf(
-                        BottomNavItem.Home,
-                        BottomNavItem.Progress,
-                        BottomNavItem.Profile
-                    )
+    // Broader than shouldShowBottomBar: true for EVERY destination nested under Graph.MAIN
+    // (including CategoryDetails/LessonDetails/LessonProgress/LessonEnd, not just the 3 bottom-nav
+    // tab roots), false only for the AUTH graph's Login/Register screens. Gates the badge
+    // celebration overlay - using shouldShowBottomBar here would incorrectly suppress it on the
+    // LessonEnd screen, the primary scenario the celebration exists for.
+    val isInMainGraph = currentDestination?.hierarchy?.any { it.route == Graph.MAIN } == true
 
-                    items.forEach { screen ->
-                        NavigationBarItem(
-                            icon = { Icon(screen.icon, contentDescription = screen.title) },
-                            label = { Text(screen.title) },
-                            // Check if the current route matches this item
-                            selected = currentRoute == screen.route,
-                            onClick = {
-                                if (currentRoute != screen.route) {
-                                    // Standard M3 Bottom Navigation behavior
-                                    navController.navigate(screen.route) {
-                                        // Pop up to the start destination of the graph to avoid building up a large stack of destinations
-                                        // Find the start destination of the CURRENT nested graph (MAIN)
-                                        val startDestId = currentDestination?.parent?.startDestinationId
-                                            ?: navController.graph.findStartDestination().id
+    Box {
+        Scaffold(
+            bottomBar = {
+                // 4. Conditional Rendering: Only draw the bar if we are in the Main Graph
+                if (shouldShowBottomBar) {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.background
+                        //windowInsets = WindowInsets(0.dp) // Removes extra bottom padding
+                    ) {
+                        val items = listOf(
+                            BottomNavItem.Home,
+                            BottomNavItem.Progress,
+                            BottomNavItem.Profile
+                        )
 
-                                        popUpTo(startDestId) {
-                                            saveState = true
+                        items.forEach { screen ->
+                            NavigationBarItem(
+                                icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                label = { Text(screen.title) },
+                                // Check if the current route matches this item
+                                selected = currentRoute == screen.route,
+                                onClick = {
+                                    if (currentRoute != screen.route) {
+                                        // Standard M3 Bottom Navigation behavior
+                                        navController.navigate(screen.route) {
+                                            // Pop up to the start destination of the graph to avoid building up a large stack of destinations
+                                            // Find the start destination of the CURRENT nested graph (MAIN)
+                                            val startDestId = currentDestination?.parent?.startDestinationId
+                                                ?: navController.graph.findStartDestination().id
+
+                                            popUpTo(startDestId) {
+                                                saveState = true
+                                            }
+                                            // Avoid multiple copies of the same destination
+                                            launchSingleTop = true
+                                            // Restore state when reselecting a previously selected item
+                                            restoreState = true
                                         }
-                                        // Avoid multiple copies of the same destination
-                                        launchSingleTop = true
-                                        // Restore state when reselecting a previously selected item
-                                        restoreState = true
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
-        }
-    ) { innerPadding ->
+        ) { innerPadding ->
 
-        // 5. Host the unified Navigation Graph here, passing the padding from the Scaffold
-        AppNavGraph(
-            navController = navController,
-            modifier = Modifier.padding(innerPadding)
-        )
+            // 5. Host the unified Navigation Graph here, passing the padding from the Scaffold
+            AppNavGraph(
+                navController = navController,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
+
+        // 6. Global badge celebration overlay - floats above the bottom bar and all screen
+        // content regardless of which MAIN-graph route is current.
+        BadgeCelebrationHost(isActive = isInMainGraph)
     }
 }

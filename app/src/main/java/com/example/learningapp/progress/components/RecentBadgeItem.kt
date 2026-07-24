@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -24,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,7 +67,7 @@ fun RecentBadgeItem(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = badge.iconUrl),
+                    imageVector = Icons.Filled.EmojiEvents,
                     contentDescription = badge.title,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(24.dp)
@@ -120,7 +120,6 @@ fun RecentBadgeItem(
 @Composable
 fun RecentBadgeItemPreview() {
     // 1. Mock Data for the badge
-    // Assuming RecentBadge is a data class like: data class RecentBadge(val title: String, val earnedDate: String, val iconRes: Int)
     val mockBadge = RecentBadge(
         id = "1",
         title = "Grammar Master",
