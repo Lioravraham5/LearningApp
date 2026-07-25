@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.learningapp.badgeCelebration.BadgeCelebrationHost
+import com.example.learningapp.badgeCelebration.ui.BadgeCelebrationHost
 import com.example.learningapp.navigation.BottomNavItem
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon

@@ -1,7 +1,7 @@
 package com.example.learningapp.lessonEnd.models
 
 import com.google.gson.annotations.SerializedName
-import com.example.learningapp.progress.Badge
+import com.example.learningapp.progress.models.Badge
 
 /**
  * Represents the completion status of a lesson, mirroring the backend enum.

@@ -1,8 +1,8 @@
 package com.example.learningapp.core
 
 import android.util.Log
-import com.example.learningapp.progress.Badge
-import com.example.learningapp.progress.ProgressRepository
+import com.example.learningapp.progress.models.Badge
+import com.example.learningapp.progress.data.ProgressRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

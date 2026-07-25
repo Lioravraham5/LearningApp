@@ -1,17 +1,17 @@
 package com.example.learningapp.network
 
-import com.example.learningapp.categoryDetails.CategoryDetails
-import com.example.learningapp.home.Category
-import com.example.learningapp.lessonDetails.LessonDetails
+import com.example.learningapp.categoryDetails.models.CategoryDetails
+import com.example.learningapp.home.models.Category
+import com.example.learningapp.lessonDetails.models.LessonDetails
 import com.example.learningapp.lessonEnd.models.LessonCompleteRequest
 import com.example.learningapp.lessonEnd.models.LessonCompleteResponse
 import com.example.learningapp.lessonProgress.models.AssessmentResponse
 import com.example.learningapp.lessonProgress.models.Sentence
-import com.example.learningapp.progress.Badge
-import com.example.learningapp.progress.CategoryAchievement
-import com.example.learningapp.progress.MarkBadgesSeenRequest
-import com.example.learningapp.progress.OverviewData
-import com.example.learningapp.progress.UnseenBadge
+import com.example.learningapp.progress.models.Badge
+import com.example.learningapp.progress.models.CategoryAchievement
+import com.example.learningapp.progress.models.MarkBadgesSeenRequest
+import com.example.learningapp.progress.models.OverviewData
+import com.example.learningapp.progress.models.UnseenBadge
 import com.example.learningapp.lessonProgress.models.LessonStartResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

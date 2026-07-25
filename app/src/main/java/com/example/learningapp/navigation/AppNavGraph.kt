@@ -7,16 +7,16 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.learningapp.auth.login.LoginScreen
-import com.example.learningapp.auth.register.RegisterScreen
+import com.example.learningapp.auth.login.ui.LoginScreen
+import com.example.learningapp.auth.register.ui.RegisterScreen
 import androidx.navigation.navigation
-import com.example.learningapp.categoryDetails.CategoryDetailsScreen
-import com.example.learningapp.home.HomeScreen
-import com.example.learningapp.lessonDetails.LessonDetailsScreen
-import com.example.learningapp.lessonEnd.LessonEndScreen
-import com.example.learningapp.lessonProgress.LessonProgressScreen
-import com.example.learningapp.profile.ProfileScreen
-import com.example.learningapp.progress.ProgressScreen
+import com.example.learningapp.categoryDetails.ui.CategoryDetailsScreen
+import com.example.learningapp.home.ui.HomeScreen
+import com.example.learningapp.lessonDetails.ui.LessonDetailsScreen
+import com.example.learningapp.lessonEnd.ui.LessonEndScreen
+import com.example.learningapp.lessonProgress.ui.LessonProgressScreen
+import com.example.learningapp.profile.ui.ProfileScreen
+import com.example.learningapp.progress.ui.ProgressScreen
 
 /**
  * The single, unified Navigation Graph for the entire application.
