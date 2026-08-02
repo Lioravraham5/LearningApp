@@ -39,6 +39,7 @@ import com.example.learningapp.categoryDetails.models.LessonDifficulty
 import com.example.learningapp.categoryDetails.ui.components.CategoryDetailsHeader
 import com.example.learningapp.categoryDetails.ui.components.LessonItem
 import com.example.learningapp.core.UiState
+import com.example.learningapp.ui.components.EmptyStateComponent
 import com.example.learningapp.ui.components.ErrorStateComponent
 
 /**
@@ -150,26 +151,36 @@ fun CategoryDetailsContent(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        // 2. The Title for the lessons list
-                        item {
-                            Text(
-                                text = "Lessons",
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
+                        if (category.lessons.isEmpty()) {
+                            // No lessons in this category yet
+                            item {
+                                EmptyStateComponent(
+                                    title = "No lessons yet",
+                                    message = "Lessons for this category will appear here soon."
+                                )
+                            }
+                        } else {
+                            // 2. The Title for the lessons list
+                            item {
+                                Text(
+                                    text = "Lessons",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
 
-                        // 3. The List of Lessons
-                        items(
-                            items = category.lessons,
-                            key = { lesson -> lesson.id } // Performance boost
-                        ) { lesson ->
-                            LessonItem(
-                                lesson = lesson,
-                                onClick = {
-                                    onNavigateToLesson(lesson.id)
-                                }
-                            )
+                            // 3. The List of Lessons
+                            items(
+                                items = category.lessons,
+                                key = { lesson -> lesson.id } // Performance boost
+                            ) { lesson ->
+                                LessonItem(
+                                    lesson = lesson,
+                                    onClick = {
+                                        onNavigateToLesson(lesson.id)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -212,6 +223,8 @@ private val mockCategoryDetailsPreview = CategoryDetails(
     lessons = mockLessonsPreview
 )
 
+private val mockCategoryDetailsEmptyPreview = mockCategoryDetailsPreview.copy(lessons = emptyList())
+
 // --- Previews ---
 
 @Preview(showBackground = true, name = "1. Category Details - Success State")
@@ -221,6 +234,19 @@ fun CategoryDetailsContentSuccessPreview() {
         CategoryDetailsContent(
             // Passing the Success state with our mock data
             state = UiState.Success(mockCategoryDetailsPreview),
+            onBackClick = { /* Preview: Do nothing */ },
+            onNavigateToLesson = { /* Preview: Do nothing */ },
+            onRetry = { /* Preview: Do nothing */ }
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "1b. Category Details - Empty Lessons")
+@Composable
+fun CategoryDetailsContentEmptyLessonsPreview() {
+    MaterialTheme {
+        CategoryDetailsContent(
+            state = UiState.Success(mockCategoryDetailsEmptyPreview),
             onBackClick = { /* Preview: Do nothing */ },
             onNavigateToLesson = { /* Preview: Do nothing */ },
             onRetry = { /* Preview: Do nothing */ }

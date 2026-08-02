@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.learningapp.home.models.Category
 import com.example.learningapp.home.ui.components.CategoryCard
 import com.example.learningapp.home.ui.components.HomeHeader
+import com.example.learningapp.ui.components.EmptyStateComponent
 import com.example.learningapp.ui.components.ErrorStateComponent
 
 /**
@@ -104,27 +104,35 @@ fun HomeScreenContent(
                 // --- FIXED HEADER SECTION ---
                 HomeHeader(userName = state.userName)
 
-                // --- CATEGORIES LIST ---
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        top = 16.dp,
-                        bottom = 16.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(16.dp) // Spacing between each item
-                ) {
+                // --- CATEGORIES LIST (or empty state) ---
+                if (state.categories.isEmpty()) {
+                    EmptyStateComponent(
+                        title = "No categories yet",
+                        message = "New categories will show up here once they're available.",
+                        modifier = Modifier.weight(1f)
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            top = 16.dp,
+                            bottom = 16.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(16.dp) // Spacing between each item
+                    ) {
 
-                    // Items: The Category Cards
-                    items(
-                        items = state.categories,
-                        key = { category -> category.id } // Improves rendering performance
-                    ) { category ->
-                        CategoryCard(
-                            category = category,
-                            onClick = {
-                                onCategoryClick(category.id)
-                            }
-                        )
+                        // Items: The Category Cards
+                        items(
+                            items = state.categories,
+                            key = { category -> category.id } // Improves rendering performance
+                        ) { category ->
+                            CategoryCard(
+                                category = category,
+                                onClick = {
+                                    onCategoryClick(category.id)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -191,6 +199,23 @@ fun HomeScreenPreview() {
                         progressPercentage = 0.2f
                     )
                 ),
+                error = null
+            ),
+            onCategoryClick = {},
+            onRetry = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Home Screen - Empty State")
+@Composable
+fun HomeScreenEmptyPreview() {
+    MaterialTheme {
+        HomeScreenContent(
+            state = HomeState(
+                isLoading = false,
+                userName = "Liora",
+                categories = emptyList(),
                 error = null
             ),
             onCategoryClick = {},
