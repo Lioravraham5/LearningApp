@@ -1,6 +1,6 @@
 # SpeakUp - Android application
 
-SpeakUp is a native Android app that helps users practice spoken-language pronunciation with an animated AI tutor. Users pick lesson categories, listen to a talking avatar speak target sentences, record their own attempt, and receive AI-generated pronunciation scoring and spoken feedback — all wrapped in a gamified progress/badges system.
+SpeakUp is a native Android app that helps users practice spoken-language pronunciation with an animated AI tutor. Users pick lesson categories, listen to a talking avatar speak target sentences, record their own attempt, and receive AI-generated pronunciation scoring and spoken feedback.
 
 The app is built with **Kotlin** and **Jetpack Compose**, follows an **MVVM + Repository** architecture, and talks to a separate AI backend service over REST for lesson content, speech evaluation, and progress tracking.
 
@@ -9,9 +9,9 @@ The app is built with **Kotlin** and **Jetpack Compose**, follows an **MVVM + Re
 ## Table of Contents
 
 - [Architecture Overview](#architecture-overview)
+- [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [Features](#features)
 - [Backend / API Integration](#backend--api-integration)
 - [Setup & Installation](#setup--installation)
 - [Configuration](#configuration)
@@ -19,26 +19,81 @@ The app is built with **Kotlin** and **Jetpack Compose**, follows an **MVVM + Re
 
 ## Architecture Overview
 
-### a. System Architecture
+### System Architecture
 
-High-level view of how this Android app fits together with the separate AI backend service:
+```mermaid
+flowchart LR
+    subgraph Client["Android App"]
+        App["SpeakUp Android App"]
+    end
 
-![System Architecture Diagram](docs/images/system-architecture.png)
+    subgraph Backend["AI Learning Backend"]
+        API["FastAPI REST API"]
+        DB[("PostgreSQL")]
+    end
 
-*(Diagram to be added — high-level view of the Android client, the FastAPI backend, and the external services they each depend on: Firebase, Azure Speech, and the LLM feedback model.)*
+    Firebase["Firebase Auth"]
+    AzureASR["Azure Speech - Pronunciation Assessment"]
+    AzureTTS["Azure Speech - Neural TTS + Visemes"]
+    LLM["LLM Feedback Model (Ollama)"]
 
-The app is a thin client over a dedicated **AI learning backend** that owns lesson content, user progress, and all AI/ML processing (speech-to-text, pronunciation scoring, and feedback generation). That service is built with **Python / FastAPI**, backed by **PostgreSQL** (via SQLAlchemy + Alembic migrations), verifies the same **Firebase** identity the app authenticates with, and integrates **Azure Cognitive Services Speech** for pronunciation assessment plus an LLM-based feedback stage (OpenAI-compatible API, served locally via Ollama). It is a **separate repository/service** and is not part of this codebase — see [Backend / API Integration](#backend--api-integration) for the contract the app depends on.
+    App -->|"Sign in / sign up"| Firebase
+    App -->|"REST/JSON, Bearer: Firebase ID token"| API
+    App -->|"Avatar's line to synthesize"| AzureTTS
+    AzureTTS -->|"Synthesized speech + viseme events"| App
 
-### b. Application Architecture
+    API -->|"Verify ID token"| Firebase
+    API -->|"Score recorded audio"| AzureASR
+    LLM -->|"Generate spoken feedback"| API
+    API --> DB
+```
 
-The app follows **MVVM (Model-View-ViewModel)** with a **Repository** pattern, organized as a **feature-first package structure** rather than a strict `ui/data/domain` split at the top level. Each feature (`auth`, `home`, `categoryDetails`, `lessonDetails`, `lessonProgress`, `lessonEnd`, `progress`, `badgeCelebration`, `profile`) owns its own `ui/`, `data/`, `di/`, and `models/` sub-packages.
+The app is a client over a dedicated [ **AI learning backend**](#backend--api-integration):
 
-- **UI layer** — Jetpack Compose screens (`*Screen.kt`) that are stateless and driven entirely by a `StateFlow<UiState>` exposed from a `@HiltViewModel`.
-- **ViewModel layer** — one `ViewModel` per screen, holding a single immutable UI-state data class updated via `MutableStateFlow.update {}`. A shared [`UiState<T>`](app/src/main/java/com/example/learningapp/core/UiState.kt) sealed class (`Idle` / `Loading` / `Success` / `Error`) standardizes lazy-loading and error states across features.
-- **Repository layer** — each feature defines a repository *interface* with a `Remote*Impl` (talks to the backend via Retrofit) and, in several features, a `Mock*Impl` used for UI development/previews without a live backend. **Dependency Injection (Hilt)** binds the interface to the desired implementation per feature module (e.g. [`HomeModule.kt`](app/src/main/java/com/example/learningapp/home/di/HomeModule.kt)), so swapping mock ↔ remote data sources requires no UI/ViewModel changes.
-- **Cross-feature coordination** — a few app-wide singletons live in `core/`, notably [`BadgeCelebrationCoordinator`](app/src/main/java/com/example/learningapp/core/BadgeCelebrationCoordinator.kt), which decouples "a badge was just earned" (fired from the lesson-completion flow) from "show the celebration overlay" (rendered globally by [`BadgeCelebrationHost`](app/src/main/java/com/example/learningapp/badgeCelebration/ui/BadgeCelebrationHost.kt)).
+- Owns lesson content, user progress, and all AI/ML processing (speech-to-text, pronunciation scoring, feedback generation)
+- Built with **Python / FastAPI**, backed by **PostgreSQL** (SQLAlchemy + Alembic)
+- Verifies the same **Firebase** identity the app authenticates with
+- Integrates **Azure Cognitive Services Speech** (pronunciation assessment) and an LLM feedback stage (OpenAI-compatible API, served locally via Ollama)
+
+### Application Architecture
+
+The app follows **MVVM (Model-View-ViewModel)** with a **Repository** pattern, organized as a **feature-first package structure**. Each feature (`auth`, `home`, `categoryDetails`, `lessonDetails`, `lessonProgress`, `lessonEnd`, `progress`, `badgeCelebration`, `profile`) owns its own `ui/`, `data/`, `di/`, and `models/` sub-packages.
+
+- **UI layer** — Jetpack Compose screens (`*Screen.kt`) driven by a `StateFlow<UiState>` exposed from a `@HiltViewModel`.
+- **ViewModel layer** — one `ViewModel` per screen, updating a single immutable UI-state via `MutableStateFlow.update {}`. A shared [`UiState<T>`](app/src/main/java/com/example/learningapp/core/UiState.kt) sealed class standardizes loading/error states across features.
+- **Repository layer** — each feature defines a repository *interface* backed by Retrofit, bound via **Hilt** per feature module.
 - **Navigation** — a single Compose `NavHost` with two nested graphs, `AUTH` and `MAIN`, defined in [`AppNavGraph.kt`](app/src/main/java/com/example/learningapp/navigation/AppNavGraph.kt).
 - **Dependency Injection** — **Hilt** end-to-end; each feature has its own `di/` module, plus app-wide modules for networking (`network/NetworkModule.kt`) and local storage (`core/DataStoreModule.kt`).
+
+```mermaid
+flowchart TD
+    UI["Compose UI Screen"]
+    VM["ViewModel (Hilt-injected)"]
+    Repo["Repository Interface"]
+    Api["ApiService (Retrofit)"]
+    Http["OkHttp Client<br/>AuthInterceptor"]
+    Backend[("Backend REST API")]
+
+    UI -->|"user actions"| VM
+    VM -->|"UI state"| UI
+    VM --> Repo
+    Repo --> Api
+    Api --> Http
+    Http -->|"Firebase ID token"| Backend
+```
+## Features
+
+| Feature | Description | Implementation |
+|---|---|---|
+| **Firebase Authentication (Email/Password + Google Sign-In)** | Login, registration, and Google One Tap sign-in via Credential Manager, all routed through a single repository abstraction. | [FirebaseAuthRepositoryImpl](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/auth/data/FirebaseAuthRepositoryImpl.kt#L10-L107) |
+| **Interactive Lesson Player** | A per-sentence state machine (`READY_TO_START → AVATAR_SPEAKING → WAITING_FOR_RECORDING → RECORDING → ANALYZING → SHOWING_FEEDBACK`) that drives the avatar, microphone, and network calls in lockstep, including run resumption and lifecycle-aware pause/cleanup. | [LessonProgressViewModel](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/lessonProgress/ui/LessonProgressViewModel.kt#L25-L237) |
+| **Real-Time Talking Avatar (Viseme Lip-Sync)** | A Compose avatar whose mouth shape updates live from Azure TTS viseme events, scaled proportionally to any avatar size. | [Avatar](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/avatar/Avatar.kt#L26-L69) · [VisemeMapper](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/avatar/VisemeMapper.kt#L5-L31) |
+| **Azure Neural Text-to-Speech with Viseme Streaming** | Synthesizes lesson sentences and spoken feedback aloud, streaming viseme IDs to the UI as speech plays, with clean start/stop/voice-switch lifecycle handling. | [AzureTtsService](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/lessonProgress/data/services/AzureTtsService.kt#L20-L133) |
+| **On-Device Audio Recording for Pronunciation Assessment** | Records the user's spoken attempt via `MediaRecorder` (AAC/MPEG-4) to app-private cache storage, then hands the file off for upload and scoring. | [AndroidAudioRecorderService](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/lessonProgress/data/services/AndroidAudioRecorderService.kt#L13-L113) |
+| **Badge & Achievement Celebration System** | A process-wide durable queue that reconciles badges earned inline (from a lesson-completion response) with badges fetched via a resume-time fallback check, guaranteeing a celebration is never silently lost, and renders as a global overlay above any screen. | [BadgeCelebrationCoordinator](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/core/BadgeCelebrationCoordinator.kt#L28-L82) · [BadgeCelebrationHost](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/badgeCelebration/ui/BadgeCelebrationHost.kt#L30-L67) |
+| **Selectable AI Tutor Persona** | Users choose a male/female avatar and voice, persisted locally via DataStore Preferences and applied to both the visual avatar and the TTS voice. | [AvatarSelectionSection](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/profile/ui/components/AvatarSelectionSection.kt#L37-L80) · [DataStoreModule](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/core/DataStoreModule.kt#L18-L31) |
+| **Progress Dashboard (Lazy-Loaded Tabs)** | Overview / Category Achievements / Badges tabs, each independently lazy-loaded on first visit and force-refreshed reactively whenever a new badge is earned elsewhere in the app. | [ProgressViewModel](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/progress/ui/ProgressViewModel.kt#L34-L145) |
+| **Type-Safe Nested Navigation Graph** | A single `NavHost` split into `AUTH` and `MAIN` nested graphs with typed route argument passing (category ID, lesson ID, run ID) and explicit back-stack management (e.g. popping the lesson player off the stack on completion). | [AppNavGraph](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/navigation/AppNavGraph.kt#L26-L203) |
 
 ## Tech Stack
 
@@ -104,20 +159,6 @@ LearningApp/
 
 Each feature package generally follows the same internal shape: `ui/` (Composables + ViewModel), `data/` (repository interface + implementation(s)), `models/` (DTOs/UI models), and `di/` (Hilt module binding the repository).
 
-## Features
-
-| Feature | Description | Implementation |
-|---|---|---|
-| **Firebase Authentication (Email/Password + Google Sign-In)** | Login, registration, and Google One Tap sign-in via Credential Manager, all routed through a single repository abstraction. | [FirebaseAuthRepositoryImpl](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/auth/data/FirebaseAuthRepositoryImpl.kt#L10-L107) |
-| **Interactive Lesson Player** | A per-sentence state machine (`READY_TO_START → AVATAR_SPEAKING → WAITING_FOR_RECORDING → RECORDING → ANALYZING → SHOWING_FEEDBACK`) that drives the avatar, microphone, and network calls in lockstep, including run resumption and lifecycle-aware pause/cleanup. | [LessonProgressViewModel](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/lessonProgress/ui/LessonProgressViewModel.kt#L25-L237) |
-| **Real-Time Talking Avatar (Viseme Lip-Sync)** | A Compose avatar whose mouth shape updates live from Azure TTS viseme events, scaled proportionally to any avatar size. | [Avatar](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/avatar/Avatar.kt#L26-L69) · [VisemeMapper](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/avatar/VisemeMapper.kt#L5-L31) |
-| **Azure Neural Text-to-Speech with Viseme Streaming** | Synthesizes lesson sentences and spoken feedback aloud, streaming viseme IDs to the UI as speech plays, with clean start/stop/voice-switch lifecycle handling. | [AzureTtsService](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/lessonProgress/data/services/AzureTtsService.kt#L20-L133) |
-| **On-Device Audio Recording for Pronunciation Assessment** | Records the user's spoken attempt via `MediaRecorder` (AAC/MPEG-4) to app-private cache storage, then hands the file off for upload and scoring. | [AndroidAudioRecorderService](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/lessonProgress/data/services/AndroidAudioRecorderService.kt#L13-L113) |
-| **Badge & Achievement Celebration System** | A process-wide durable queue that reconciles badges earned inline (from a lesson-completion response) with badges fetched via a resume-time fallback check, guaranteeing a celebration is never silently lost, and renders as a global overlay above any screen. | [BadgeCelebrationCoordinator](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/core/BadgeCelebrationCoordinator.kt#L28-L82) · [BadgeCelebrationHost](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/badgeCelebration/ui/BadgeCelebrationHost.kt#L30-L67) |
-| **Selectable AI Tutor Persona** | Users choose a male/female avatar and voice, persisted locally via DataStore Preferences and applied to both the visual avatar and the TTS voice. | [AvatarSelectionSection](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/profile/ui/components/AvatarSelectionSection.kt#L37-L80) · [DataStoreModule](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/core/DataStoreModule.kt#L18-L31) |
-| **Progress Dashboard (Lazy-Loaded Tabs)** | Overview / Category Achievements / Badges tabs, each independently lazy-loaded on first visit and force-refreshed reactively whenever a new badge is earned elsewhere in the app. | [ProgressViewModel](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/progress/ui/ProgressViewModel.kt#L34-L145) |
-| **Type-Safe Nested Navigation Graph** | A single `NavHost` split into `AUTH` and `MAIN` nested graphs with typed route argument passing (category ID, lesson ID, run ID) and explicit back-stack management (e.g. popping the lesson player off the stack on completion). | [AppNavGraph](https://github.com/<ORG>/LearningApp/blob/main/app/src/main/java/com/example/learningapp/navigation/AppNavGraph.kt#L26-L203) |
-
 ## Backend / API Integration
 
 All network calls are defined in a single Retrofit interface, [`network/ApiService.kt`](app/src/main/java/com/example/learningapp/network/ApiService.kt), with the base URL and OkHttp/Retrofit setup in [`network/NetworkModule.kt`](app/src/main/java/com/example/learningapp/network/NetworkModule.kt). Every request is authenticated with a Firebase ID token via `AuthInterceptor`.
@@ -138,6 +179,40 @@ All network calls are defined in a single Retrofit interface, [`network/ApiServi
 | `POST` | `/progress/badges/seen` | Acknowledge that a badge's celebration has been shown (`204 No Content`) |
 
 This contract was cross-referenced against the backend's route definitions to confirm paths and methods match exactly.
+
+The sequence below traces the app's core AI loop end-to-end — recording a pronunciation attempt, scoring it, and speaking the feedback back — since it's the only flow that hits an external AI service mid-request:
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as LessonProgressScreen
+    participant VM as LessonProgressViewModel
+    participant Mic as AudioRecorderService
+    participant Repo as LessonProgressRepository
+    participant API as Backend /asr (FastAPI)
+    participant Azure as Azure Speech (Pronunciation Assessment)
+    participant LLM as Feedback Model (Ollama)
+    participant DB as PostgreSQL
+
+    User->>UI: Tap record, speak sentence, tap stop
+    UI->>VM: stopRecordingAndAnalyze()
+    VM->>Mic: stopRecording()
+    Mic-->>VM: audio file (.m4a)
+    VM->>Repo: evaluateSpeech(audioFile, sentenceId, runId)
+    Repo->>API: POST /asr (multipart, Bearer Firebase token)
+    API->>API: verify Firebase token, look up target sentence
+    API->>Azure: assess_pronunciation(audio, target_sentence)
+    Azure-->>API: recognized text + word/phoneme scores
+    API->>API: Stage 1 deterministic analysis (score, errors)
+    API->>LLM: generate_feedback(analysis report)
+    LLM-->>API: spoken feedback text
+    API->>DB: record_attempt(score, run_id)
+    API-->>Repo: AssessmentResponse (score, feedback text, ...)
+    Repo-->>VM: Result.success(evaluation)
+    VM->>UI: uiState = SHOWING_FEEDBACK
+    VM->>VM: ttsService.speakText(feedback text)
+    Note over UI: Avatar lip-syncs via Azure TTS viseme events
+```
 
 Backend service: https://github.com/YuvalHaski/AIAvatarLearningApp
 
@@ -191,4 +266,11 @@ Two things need to be set before the app can talk to speech services and to your
    ./gradlew installDebug
    ```
 
-At runtime the app requests `RECORD_AUDIO` (for the pronunciation-practice microphone), `POST_NOTIFICATIONS`, and uses `INTERNET` for all API/speech traffic (see [`AndroidManifest.xml`](app/src/main/AndroidManifest.xml)).
+### Permissions
+
+Declared in [`AndroidManifest.xml`](app/src/main/AndroidManifest.xml):
+
+| Permission | Reason |
+|---|---|
+| `INTERNET` | REST calls to the backend and direct calls to Azure Speech (TTS) |
+| `RECORD_AUDIO` | Capturing the user's spoken attempt during a lesson for pronunciation scoring |
